@@ -10,5 +10,6 @@ public class StartGame : MonoBehaviour
     void Start()
     {
         Instantiate(player, new Vector3(0, 0.5f, 0), Quaternion.identity);
+        GameControl.control.Load();
     }
 }

@@ -23,4 +23,23 @@ public class PlayerController : MonoBehaviour
 
         rb.AddForce(movement * speed);
     }
+
+    public void GetsHurt(float damage)
+    {
+        GameControl.control.health = GameControl.control.health - damage;      
+    }
+
+    public void GetsHealed(float gain)
+    {
+        GameControl.control.health = GameControl.control.health + gain;
+    }
+
+    public void OnTriggerEnter(Collider col)
+    {
+        if (col.gameObject.CompareTag("DamageTrap"))
+        {
+            GetsHurt(10.0f);
+        }
+    }
+
 }

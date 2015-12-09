@@ -12,6 +12,7 @@ public class GameControl : MonoBehaviour {
 
     public float health;
     public float exp;
+    public float healthOverTime;
 
 
 	void Awake () {

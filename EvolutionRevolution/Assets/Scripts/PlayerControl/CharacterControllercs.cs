@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 /// <summary> 
 /// Charactercontrollercs.cs 
 /// Character Controller in CSharp v2.3 
@@ -7,6 +8,8 @@ using UnityStandardAssets.Characters.FirstPerson;
 
 public class CharacterControllercs : MonoBehaviour
 {
+    public Camera firstPersonCamera;
+    public Camera thirdPersonCamera;
     [SerializeField]    private MouseLook m_MouseLook;
     private Camera m_Camera;
     //Var definition 
@@ -31,10 +34,14 @@ public class CharacterControllercs : MonoBehaviour
     private float pbuffer = 0.0f;                    //Cooldownpuffer for SideButtons 
     private float coolDown = 0.5f;                   //Cooldowntime for SideButtons 
     private CharacterController controller;          //CharacterController for movement 
+    private bool thirdPerson = true;
 
     void Start()
     {
-        m_Camera = Camera.main;
+        firstPersonCamera.enabled = false;
+        firstPersonCamera.GetComponent<AudioListener>().enabled = false;
+        thirdPersonCamera.enabled = true;
+        m_Camera = thirdPersonCamera;
         m_MouseLook.Init(transform, m_Camera.transform);
         //GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ; 
     }
@@ -50,6 +57,31 @@ public class CharacterControllercs : MonoBehaviour
         // Hold "Run" to run 
         if (Input.GetAxis("Run") != 0)
             isWalking = false;
+
+        //press f4 to switch Points of View
+        if(Input.GetButtonDown("F"))
+        {
+
+            if (thirdPerson)
+            {
+                thirdPersonCamera.enabled = false;
+                thirdPersonCamera.GetComponent<AudioListener>().enabled = false;
+                firstPersonCamera.enabled = true;
+                firstPersonCamera.GetComponent<AudioListener>().enabled = true;
+                m_Camera = firstPersonCamera;
+                thirdPerson = false;
+            }
+            else
+            {
+                firstPersonCamera.enabled = false;
+                firstPersonCamera.GetComponent<AudioListener>().enabled = false;
+                thirdPersonCamera.enabled = true;
+                thirdPersonCamera.GetComponent<AudioListener>().enabled = true;
+                m_Camera = thirdPersonCamera;
+                thirdPerson = true;
+            }
+        }
+
 
         // Only allow movement and jumps while grounded 
         if (grounded)

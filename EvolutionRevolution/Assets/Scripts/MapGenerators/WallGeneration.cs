@@ -18,9 +18,11 @@ public class WallGeneration : MonoBehaviour {
 
 
 		//-1 denotes the point being at width max? not issue right now
-		starts.Add( new Vector2(0,80) );
 		starts.Add( new Vector2(0,20) );
-		ends.Add( new Vector2(width-1,20) );
+		starts.Add( new Vector2(0,80) );
+		starts.Add( new Vector2(width/2,10) );
+		ends.Add( new Vector2(width-1,60) );
+		ends.Add( new Vector2(width/2,10) );
 		ends.Add( new Vector2(width-1,80) );
 
 		double runtime = Time.realtimeSinceStartup;
@@ -37,25 +39,14 @@ public class WallGeneration : MonoBehaviour {
 	
 	}
 
-
-
-
 	public Transform brick;
-	void BuildWall(int width, int height, int xBase, int yBase){
-		for (var x = xBase; x < width + xBase; x++) {
-			for (var y = yBase; y < height + yBase; y++) {
-				Instantiate (brick, new Vector3 ((x - width / 2), (y - height / 2), 0), Quaternion.identity);
-			}
-		}
-	}
-		
-
 	void BuildWallWithPath(int width, int height, int xBase, int yBase, List<Vector2> starts, List<Vector2> ends){
 		bool[,] path = generatePath(width, height, starts, ends);
 
 		for (var x = xBase; x < width + xBase; x++) {
 			for (var y = yBase; y < height + yBase; y++) {
 				if (!path [x - xBase, y - yBase]) {
+					//can improve speed drastically by only instantiating blocks that are actually required, a lot of middle ground array wont be required.
 					Instantiate (brick, new Vector3 ((x - width / 2), (y - height / 2), 0), Quaternion.identity);
 				}
 			}
@@ -97,6 +88,8 @@ public class WallGeneration : MonoBehaviour {
 
 			done = false;
 			Vector2 backtracePos = end;
+			int relWidth = Math.Abs ((int)(start.x - end.x));
+			int relHeight = Math.Abs ((int)(start.y - end.y));
 			path [(int)backtracePos.x, (int)backtracePos.y] = true;
 			while (done == false) {
 				List<Vector2> neighbors = getFilledNeighbors (backtracePos, wave);
@@ -118,7 +111,16 @@ public class WallGeneration : MonoBehaviour {
 						bestNeighbor = neighbor;
 					} else if (challengeCost == bestCurCost) {
 						float rand = UnityEngine.Random.value;
-						if (rand <= .25) {
+						float check = (float)relHeight / (float)relWidth;
+						if (check > 1) {
+							check = relWidth / relHeight;
+						}
+
+						//check = check / 2;
+
+						Debug.Log (check);
+
+						if (rand <= check) {
 							bestNeighbor = neighbor;
 						}
 					}

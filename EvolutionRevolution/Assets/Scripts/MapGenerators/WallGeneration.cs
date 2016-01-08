@@ -116,10 +116,6 @@ public class WallGeneration : MonoBehaviour {
 							check = relWidth / relHeight;
 						}
 
-						//check = check / 2;
-
-						Debug.Log (check);
-
 						if (rand <= check) {
 							bestNeighbor = neighbor;
 						}
@@ -144,25 +140,25 @@ public class WallGeneration : MonoBehaviour {
 			if(test == 0){
 				neighbors.Add(new Vector2(curPos.x-1, curPos.y));
 			}
-		}catch(IndexOutOfRangeException e){}
+		}catch(IndexOutOfRangeException){}
 		try{
 			int test = wave[(int)curPos.x, (int)curPos.y-1];
 			if(test == 0){
 				neighbors.Add(new Vector2(curPos.x, curPos.y-1));
 			}
-		}catch(IndexOutOfRangeException e){}
+		}catch(IndexOutOfRangeException){}
 		try{
 			int test = wave[(int)curPos.x + 1, (int)curPos.y];
 			if(test == 0){
 				neighbors.Add(new Vector2(curPos.x+1, curPos.y));
 			}
-		}catch(IndexOutOfRangeException e){}
+		}catch(IndexOutOfRangeException){}
 		try{
 			int test = wave[(int)curPos.x, (int)curPos.y+1];
 			if(test == 0){
 				neighbors.Add(new Vector2(curPos.x, curPos.y+1));
 			}
-		}catch(IndexOutOfRangeException e){}
+		}catch(IndexOutOfRangeException){}
 
 		return neighbors;
 	}
@@ -175,25 +171,25 @@ public class WallGeneration : MonoBehaviour {
 			if(test != 0){
 				neighbors.Add(new Vector2(curPos.x-1, curPos.y));
 			}
-		}catch(IndexOutOfRangeException e){}
+		}catch(IndexOutOfRangeException){}
 		try{
 			int test = wave[(int)curPos.x, (int)curPos.y-1];
 			if(test != 0){
 				neighbors.Add(new Vector2(curPos.x, curPos.y-1));
 			}
-		}catch(IndexOutOfRangeException e){}
+		}catch(IndexOutOfRangeException){}
 		try{
 			int test = wave[(int)curPos.x + 1, (int)curPos.y];
 			if(test != 0){
 				neighbors.Add(new Vector2(curPos.x+1, curPos.y));
 			}
-		}catch(IndexOutOfRangeException e){}
+		}catch(IndexOutOfRangeException){}
 		try{
 			int test = wave[(int)curPos.x, (int)curPos.y+1];
 			if(test != 0){
 				neighbors.Add(new Vector2(curPos.x, curPos.y+1));
 			}
-		}catch(IndexOutOfRangeException e){}
+		}catch(IndexOutOfRangeException){}
 
 		return neighbors;
 	}

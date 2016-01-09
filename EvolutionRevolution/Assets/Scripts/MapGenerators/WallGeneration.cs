@@ -39,9 +39,7 @@ public class WallGeneration: MonoBehaviour {
 		ends.Add( new Vector2(180,0) );
 
 		createWall (width, height, xBase, yBase, zBase, 0, 0, 0, WallLocation.xPos, starts, ends, wallName);
-
-		//WallGeneration firstWall = new WallGeneration(width, height, xBase, yBase, starts, ends);
-
+	
 	}
 
 	// Update is called once per frame
@@ -107,8 +105,8 @@ public class WallGeneration: MonoBehaviour {
 				}
 			}
 		}
-		wallInstance.transform.Translate (new Vector3 (xBase, yBase, zBase));
 		wallInstance.transform.Rotate (new Vector3 (xRotate, yRotate, zRotate));
+		wallInstance.transform.Translate (new Vector3 (xBase, yBase, zBase));
 	}
 
 	public void createBrick(int x, int y, int xBase, int yBase, int width, int height, GameObject wallInstance){

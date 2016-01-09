@@ -32,14 +32,14 @@ public class RoomGeneration : MonoBehaviour {
 		//-1 denotes the point being at width max? not issue right now
 		starts.Add( new Vector2(0,20) );
 		starts.Add( new Vector2(0,80) );
-		starts.Add( new Vector2(width/2,10) );
+		starts.Add( new Vector2(50,10) );
 		starts.Add( new Vector2(0,0) );
 		starts.Add( new Vector2(0,-1) );
 		ends.Add( new Vector2(-1,60) );
-		ends.Add( new Vector2(width/2,10) );
+		ends.Add( new Vector2(50,10) );
 		ends.Add( new Vector2(-1,80) );
-		ends.Add( new Vector2(100,-1) );
-		ends.Add( new Vector2(180,0) );
+		ends.Add( new Vector2(99,-1) );
+		ends.Add( new Vector2(90,0) );
 
 		roomName = "Room" + xBase + yBase + zBase;
 
@@ -81,48 +81,46 @@ public class RoomGeneration : MonoBehaviour {
 		zBase = room.zBase;
 		List<Wall> walls = new List<Wall>();
 
-		walls.Add(posX(width,height,depth,xBase,yBase,zBase, starts, ends));
-		/*
-		walls.Add(posY(width,height,depth,xBase,yBase,zBase, starts, ends));
 		walls.Add(posZ(width,height,depth,xBase,yBase,zBase, starts, ends));
-		walls.Add(negX(width,height,depth,xBase,yBase,zBase, starts, ends));
-		walls.Add(negY(width,height,depth,xBase,yBase,zBase, starts, ends));
+		walls.Add(posY(width,height,depth,xBase,yBase,zBase, starts, ends));
+		walls.Add(posX(width,height,depth,xBase,yBase,zBase, starts, ends));
 		walls.Add(negZ(width,height,depth,xBase,yBase,zBase, starts, ends));
-		*/
-
+		walls.Add(negY(width,height,depth,xBase,yBase,zBase, starts, ends));
+		walls.Add(negX(width,height,depth,xBase,yBase,zBase, starts, ends));
 
 		return walls;
 	}
-
-	public Wall posZ(int width, int height, int depth, int xBase, int yBase, int zBase, List<Vector2> starts, List<Vector2> ends){
-		//no rotation, no depth gain.
+	
+	public Wall posX(int width, int height, int depth, int xBase, int yBase, int zBase, List<Vector2> starts, List<Vector2> ends){
+		//y rotation 90 degrees, positive width gain. height is now depth, width is now height
 		WallLocation wallLoc = WallLocation.xPos;
-		return wallScript.createWall (width, height, xBase, yBase, zBase + depth/2, 0, 0, 0, wallLoc, starts, ends, roomName);
+		return wallScript.createWall (depth, height, xBase, yBase, zBase + width/2, 0, 90, 0, wallLoc, starts, ends, roomName);
 	}
 	public Wall posY(int width, int height, int depth, int xBase, int yBase, int zBase, List<Vector2> starts, List<Vector2> ends){
 		//x rotation 90 degrees, positive height gain. height is now depth
 		WallLocation wallLoc = WallLocation.yPos;
-		return wallScript.createWall (width, depth, xBase, yBase + height/2, zBase, 90, 0, 0, wallLoc, starts, ends, roomName);
+		return wallScript.createWall (width, depth, xBase, yBase, zBase + height/2, 90, 0, 0, wallLoc, starts, ends, roomName);
 	}
-	public Wall posX(int width, int height, int depth, int xBase, int yBase, int zBase, List<Vector2> starts, List<Vector2> ends){
-		//y rotation 90 degrees, positive width gain. height is now depth, width is now height
+	public Wall posZ(int width, int height, int depth, int xBase, int yBase, int zBase, List<Vector2> starts, List<Vector2> ends){
+		//no rotation, no depth gain.
 		WallLocation wallLoc = WallLocation.zPos;
-		return wallScript.createWall (depth, height, xBase + width/2, yBase, zBase, 0, 90, 0, wallLoc, starts, ends, roomName);
+		return wallScript.createWall (width, height, xBase, yBase, zBase + depth/2, 0, 0, 0, wallLoc, starts, ends, roomName);
 	}
-	public Wall negZ(int width, int height, int depth, int xBase, int yBase, int zBase, List<Vector2> starts, List<Vector2> ends){
-		//no rotation, neg depth.
+
+	public Wall negX(int width, int height, int depth, int xBase, int yBase, int zBase, List<Vector2> starts, List<Vector2> ends){
+		//y rotation 90 degrees, negitve width gain. height is now depth, width is now height
 		WallLocation wallLoc = WallLocation.xNeg;
-		return wallScript.createWall (width, height, xBase, yBase, zBase - depth/2, 0, 0, 0, wallLoc, starts, ends, roomName);
+		return wallScript.createWall (depth, height, xBase, yBase, zBase + width/2, 0, -90, 0, wallLoc, starts, ends, roomName);
 	}
 	public Wall negY(int width, int height, int depth, int xBase, int yBase, int zBase, List<Vector2> starts, List<Vector2> ends){
 		//x rotation 90 degrees, negitve height gain. height is now depth
-		WallLocation wallLoc = WallLocation.yPos;
-		return wallScript.createWall (width, depth, xBase, yBase - height/2, zBase, 90, 0, 0, wallLoc, starts, ends, roomName);
+		WallLocation wallLoc = WallLocation.yNeg;
+		return wallScript.createWall (width, depth, xBase, yBase, zBase + height/2, -90, 0, 0, wallLoc, starts, ends, roomName);
 	}
-	public Wall negX(int width, int height, int depth, int xBase, int yBase, int zBase, List<Vector2> starts, List<Vector2> ends){
-		//y rotation 90 degrees, negitve width gain. height is now depth, width is now height
-		WallLocation wallLoc = WallLocation.zPos;
-		return wallScript.createWall (depth, height, xBase - width/2, yBase, zBase, 0, 90, 0, wallLoc, starts, ends, roomName);
+	public Wall negZ(int width, int height, int depth, int xBase, int yBase, int zBase, List<Vector2> starts, List<Vector2> ends){
+		//no rotation, neg depth.
+		WallLocation wallLoc = WallLocation.zNeg;
+		return wallScript.createWall (width, height, xBase, yBase, zBase - depth/2, 0, 0, 180, wallLoc, starts, ends, roomName);
 	}
 
 }

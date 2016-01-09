@@ -21,9 +21,13 @@ public class WallGeneration : MonoBehaviour {
 		starts.Add( new Vector2(0,20) );
 		starts.Add( new Vector2(0,80) );
 		starts.Add( new Vector2(width/2,10) );
+		starts.Add( new Vector2(0,0) );
+		starts.Add( new Vector2(0,height-1) );
 		ends.Add( new Vector2(width-1,60) );
 		ends.Add( new Vector2(width/2,10) );
 		ends.Add( new Vector2(width-1,80) );
+		ends.Add( new Vector2(100,height-1) );
+		ends.Add( new Vector2(180,0) );
 
 		double runtime = Time.realtimeSinceStartup;
 		Debug.Log (runtime);
@@ -43,11 +47,35 @@ public class WallGeneration : MonoBehaviour {
 	void BuildWallWithPath(int width, int height, int xBase, int yBase, List<Vector2> starts, List<Vector2> ends){
 		bool[,] path = generatePath(width, height, starts, ends);
 
-		for (var x = xBase; x < width + xBase; x++) {
-			for (var y = yBase; y < height + yBase; y++) {
-				if (!path [x - xBase, y - yBase]) {
-					//can improve speed drastically by only instantiating blocks that are actually required, a lot of middle ground array wont be required.
-					Instantiate (brick, new Vector3 ((x - width / 2), (y - height / 2), 0), Quaternion.identity);
+		for (var x = 0; x < width; x++) {
+			for (var y = 0; y < height; y++) {
+				if (path [x, y]) {
+					continue;
+				} 
+
+				//add squares on edges
+				if (x == 0 || y == 0 || x == width - 1 || y == height - 1) {
+					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+				}
+				//cardinal directions, if there is a nearby path
+				else if (path [x + 1, y]) {
+					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+				} else if (path [x - 1, y]) {
+					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+				} else if (path [x, y - 1]) {
+					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+				} else if (path [x, y + 1]) {
+					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+				}
+				//intermediate directions, if path is nearby
+				else if (path [x + 1, y + 1]) {
+					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+				} else if (path [x - 1, y - 1]) {
+					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+				} else if (path [x + 1, y - 1]) {
+					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+				} else if (path [x - 1, y + 1]) {
+					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
 				}
 			}
 		}
@@ -111,9 +139,9 @@ public class WallGeneration : MonoBehaviour {
 						bestNeighbor = neighbor;
 					} else if (challengeCost == bestCurCost) {
 						float rand = UnityEngine.Random.value;
-						float check = (float)relHeight / (float)relWidth;
-						if (check > 1) {
-							check = relWidth / relHeight;
+						float check = (float)relHeight / ((float)relWidth+(float)relHeight);
+						if (relWidth < relHeight) {
+							check = (float)relWidth / ((float)relWidth+(float)relHeight);
 						}
 
 						if (rand <= check) {

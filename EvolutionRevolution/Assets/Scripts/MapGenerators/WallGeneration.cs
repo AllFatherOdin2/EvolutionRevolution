@@ -2,20 +2,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using AssemblyCSharp;
 
-public class WallGeneration : MonoBehaviour {
+public class WallGeneration: MonoBehaviour {
 	public int width = 200;
 	public int height = 100;
 
 	public int xBase = 0;
 	public int yBase = 0;
+	public int zBase = 0;
+	public String wallName = "";
+
+	public List<Vector2> starts = new List<Vector2>();
+	public List<Vector2> ends = new List<Vector2>();
 
 
-	// Use this for initialization
+	public bool debugWall = false;
+
+	public Transform brick;
+	public Transform wall;
+
+	// this will only be used if a direct object is created with this script, 
+	// whcih shouldnt happen too frequently except for testing
 	void Start () {
-		List<Vector2> starts = new List<Vector2>();
-		List<Vector2> ends = new List<Vector2>();
-
 
 		//-1 denotes the point being at width max? not issue right now
 		starts.Add( new Vector2(0,20) );
@@ -29,22 +38,41 @@ public class WallGeneration : MonoBehaviour {
 		ends.Add( new Vector2(100,height-1) );
 		ends.Add( new Vector2(180,0) );
 
-		double runtime = Time.realtimeSinceStartup;
-		Debug.Log (runtime);
+		createWall (width, height, xBase, yBase, zBase, 0, 0, 0, WallLocation.xPos, starts, ends, wallName);
 
-		BuildWallWithPath (width, height, xBase, yBase, starts, ends);
+		//WallGeneration firstWall = new WallGeneration(width, height, xBase, yBase, starts, ends);
 
-		runtime = Time.realtimeSinceStartup - runtime;
-		Debug.Log (runtime);
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
-	
+
 	}
 
-	public Transform brick;
-	void BuildWallWithPath(int width, int height, int xBase, int yBase, List<Vector2> starts, List<Vector2> ends){
+	public Wall createWall(int width, int height, int xBase, int yBase, int zBase, float xRotate, float yRotate, float zRotate, 
+		WallLocation wallLoc, List<Vector2> starts, List<Vector2> ends, String wallName){
+		double runtime = 0;
+		if (debugWall) {
+			runtime = Time.realtimeSinceStartup;
+			Debug.Log (runtime);
+		}
+
+		this.wallName = wallName +":Wall" + xBase + yBase + zBase + (int)wallLoc;
+		BuildWallWithPath(width, height, xBase, yBase, zBase, xRotate, yRotate, zRotate, starts, ends);
+
+		if (debugWall) {
+			runtime = Time.realtimeSinceStartup - runtime;
+			Debug.Log (runtime);
+		}
+
+		return new Wall (width, height, xBase, yBase, zBase, xRotate, yRotate, zRotate, wallLoc, starts, ends, wallName);
+	}
+
+	void BuildWallWithPath(int width, int height, int xBase, int yBase, int zBase, float xRotate, float yRotate, float zRotate, List<Vector2> starts, List<Vector2> ends){
+		Instantiate (wall, new Vector3 (0, 0, 0), Quaternion.identity);
+		GameObject wallInstance = GameObject.Find("Wall(Clone)"); 
+		wallInstance.name = wallName;
+
 		bool[,] path = generatePath(width, height, starts, ends);
 
 		for (var x = 0; x < width; x++) {
@@ -55,30 +83,42 @@ public class WallGeneration : MonoBehaviour {
 
 				//add squares on edges
 				if (x == 0 || y == 0 || x == width - 1 || y == height - 1) {
-					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+					createBrick (x, y, xBase, yBase, width, height, wallInstance);
 				}
 				//cardinal directions, if there is a nearby path
 				else if (path [x + 1, y]) {
-					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+					createBrick (x, y, xBase, yBase, width, height, wallInstance);
 				} else if (path [x - 1, y]) {
-					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+					createBrick (x, y, xBase, yBase, width, height, wallInstance);
 				} else if (path [x, y - 1]) {
-					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+					createBrick (x, y, xBase, yBase, width, height, wallInstance);
 				} else if (path [x, y + 1]) {
-					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+					createBrick (x, y, xBase, yBase, width, height, wallInstance);
 				}
 				//intermediate directions, if path is nearby
 				else if (path [x + 1, y + 1]) {
-					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+					createBrick (x, y, xBase, yBase, width, height, wallInstance);
 				} else if (path [x - 1, y - 1]) {
-					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+					createBrick (x, y, xBase, yBase, width, height, wallInstance);
 				} else if (path [x + 1, y - 1]) {
-					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+					createBrick (x, y, xBase, yBase, width, height, wallInstance);
 				} else if (path [x - 1, y + 1]) {
-					Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), 0), Quaternion.identity);
+					createBrick (x, y, xBase, yBase, width, height, wallInstance);
 				}
 			}
 		}
+		wallInstance.transform.Translate (new Vector3 (xBase, yBase, zBase));
+		wallInstance.transform.Rotate (new Vector3 (xRotate, yRotate, zRotate));
+	}
+
+	public void createBrick(int x, int y, int xBase, int yBase, int width, int height, GameObject wallInstance){
+
+		Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), zBase), Quaternion.identity);
+		GameObject brickInstance = GameObject.Find("Brick(Clone)");
+		String brickwallName = wallName + ":Brick" + x + y;
+		brickInstance.name = brickwallName;
+		brickInstance.transform.parent = wallInstance.transform;
+	
 	}
 
 	bool[,] generatePath(int width, int height, List<Vector2> starts, List<Vector2> ends){
@@ -90,6 +130,16 @@ public class WallGeneration : MonoBehaviour {
 			bool done = false;
 			Vector2 start = starts [i];
 			Vector2 end = ends [i];
+			if (start [0] == -1)
+				start [0] = width - 1;
+			if (start [1] == -1)
+				start [1] = height - 1;
+
+			if (end [0] == -1)
+				end [0] = width - 1;
+			if (end [1] == -1)
+				end [1] = height - 1;
+
 			int[,] wave = new int[width, height];
 			int waveCount = 1;
 

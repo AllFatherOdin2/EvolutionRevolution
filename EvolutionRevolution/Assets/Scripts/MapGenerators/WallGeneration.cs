@@ -17,7 +17,7 @@ public class WallGeneration: MonoBehaviour {
 	public List<Vector2> ends = new List<Vector2>();
 
 
-	public bool debugWall = false;
+	public bool debugWall = true;
 
 	public Transform brick;
 	public Transform wall;
@@ -49,18 +49,18 @@ public class WallGeneration: MonoBehaviour {
 
 	public Wall createWall(int width, int height, int xBase, int yBase, int zBase, float xRotate, float yRotate, float zRotate, 
 		WallLocation wallLoc, List<Vector2> starts, List<Vector2> ends, String wallName){
-		double runtime = 0;
+		double runtimeWall = 0;
 		if (debugWall) {
-			runtime = Time.realtimeSinceStartup;
-			Debug.Log (runtime);
+			runtimeWall = Time.realtimeSinceStartup;
+			Debug.Log ("Wall start: " + runtimeWall);
 		}
 
 		this.wallName = wallName +":Wall" + xBase + yBase + zBase + (int)wallLoc;
 		BuildWallWithPath(width, height, xBase, yBase, zBase, xRotate, yRotate, zRotate, starts, ends);
 
 		if (debugWall) {
-			runtime = Time.realtimeSinceStartup - runtime;
-			Debug.Log (runtime);
+			runtimeWall = Time.realtimeSinceStartup - runtimeWall;
+			Debug.Log ("Wall end: " + runtimeWall);
 		}
 
 		return new Wall (width, height, xBase, yBase, zBase, xRotate, yRotate, zRotate, wallLoc, starts, ends, wallName);

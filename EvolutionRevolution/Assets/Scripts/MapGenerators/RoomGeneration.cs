@@ -57,7 +57,7 @@ public class RoomGeneration : MonoBehaviour {
 		double runtime = 0;
 		if (debugRoom) {
 			runtime = Time.realtimeSinceStartup;
-			Debug.Log (runtime);
+			Debug.Log ("Room start: " + runtime);
 		}
 
 		Room room = new Room (width, height, depth, xBase, yBase, zBase, roomName);
@@ -66,7 +66,7 @@ public class RoomGeneration : MonoBehaviour {
 
 		if (debugRoom) {
 			runtime = Time.realtimeSinceStartup - runtime;
-			Debug.Log (runtime);
+			Debug.Log ("Room end: " + runtime);
 		}
 
 		return room;

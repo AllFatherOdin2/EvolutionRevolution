@@ -18,9 +18,9 @@ namespace AssemblyCSharp
 		public float zBase;
 
 
-		public List<Wall> walls;
+		public WallLocation[] wallLocs;
 
-		public Room (float width, float height, float depth, float xBase, float yBase, float zBase, string name){
+		public Room (float width, float height, float depth, float xBase, float yBase, float zBase, string name, WallLocation[] wallLocs){
 			this.width = width;
 			this.height = height;
 			this.depth = depth;
@@ -28,6 +28,7 @@ namespace AssemblyCSharp
 			this.yBase = yBase;
 			this.zBase = zBase;
 			this.name = name;
+			this.wallLocs = wallLocs;
 		}
 	}
 }

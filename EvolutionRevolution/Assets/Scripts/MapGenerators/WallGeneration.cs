@@ -5,12 +5,13 @@ using System;
 using AssemblyCSharp;
 
 public class WallGeneration: MonoBehaviour {
-	public int width = 200;
-	public int height = 100;
+	public float width = 200;
+	public float height = 100;
+	public float depth = 1;
 
-	public int xBase = 0;
-	public int yBase = 0;
-	public int zBase = 0;
+	public float xBase = 0;
+	public float yBase = 0;
+	public float zBase = 0;
 	public String wallName = "";
 
 	public List<Vector2> starts = new List<Vector2>();
@@ -26,7 +27,7 @@ public class WallGeneration: MonoBehaviour {
 	// whcih shouldnt happen too frequently except for testing
 	void Start () {
 
-		//-1 denotes the point being at width max? not issue right now
+		//-1 denotes the pofloat being at width max? not issue right now
 		starts.Add( new Vector2(0,20) );
 		starts.Add( new Vector2(0,80) );
 		starts.Add( new Vector2(width/2,10) );
@@ -47,7 +48,7 @@ public class WallGeneration: MonoBehaviour {
 
 	}
 
-	public Wall createWall(int width, int height, int xBase, int yBase, int zBase, float xRotate, float yRotate, float zRotate, 
+	public Wall createWall(float width, float height, float xBase, float yBase, float zBase, float xRotate, float yRotate, float zRotate, 
 		WallLocation wallLoc, List<Vector2> starts, List<Vector2> ends, String wallName){
 		double runtimeWall = 0;
 		if (debugWall) {
@@ -55,7 +56,7 @@ public class WallGeneration: MonoBehaviour {
 			Debug.Log ("Wall start: " + runtimeWall);
 		}
 
-		this.wallName = wallName +":Wall" + xBase + yBase + zBase + (int)wallLoc;
+		this.wallName = wallName +":Wall" + xBase + yBase + zBase + (float)wallLoc;
 		BuildWallWithPath(width, height, xBase, yBase, zBase, xRotate, yRotate, zRotate, starts, ends);
 
 		if (debugWall) {
@@ -66,42 +67,51 @@ public class WallGeneration: MonoBehaviour {
 		return new Wall (width, height, xBase, yBase, zBase, xRotate, yRotate, zRotate, wallLoc, starts, ends, wallName);
 	}
 
-	void BuildWallWithPath(int width, int height, int xBase, int yBase, int zBase, float xRotate, float yRotate, float zRotate, List<Vector2> starts, List<Vector2> ends){
+	void BuildWallWithPath(float width, float height, float xBase, float yBase, float zBase, float xRotate, float yRotate, float zRotate, List<Vector2> starts, List<Vector2> ends){
 		Instantiate (wall, new Vector3 (0, 0, 0), Quaternion.identity);
 		GameObject wallInstance = GameObject.Find("Wall(Clone)"); 
 		wallInstance.name = wallName;
 
 		bool[,] path = generatePath(width, height, starts, ends);
 
+		if (width < 0)
+			width = 1;
+		if (height < 0)
+			height = 1;
+		if (depth < 0)
+			depth = 1;
+
 		for (var x = 0; x < width; x++) {
 			for (var y = 0; y < height; y++) {
-				if (path [x, y]) {
-					continue;
-				} 
+				for( int z = 0; z < depth; z++){
+					if (path [x, y]) {
+						continue;
+					} 
 
-				//add squares on edges
-				if (x == 0 || y == 0 || x == width - 1 || y == height - 1) {
-					createBrick (x, y, xBase, yBase, width, height, wallInstance);
-				}
-				//cardinal directions, if there is a nearby path
-				else if (path [x + 1, y]) {
-					createBrick (x, y, xBase, yBase, width, height, wallInstance);
-				} else if (path [x - 1, y]) {
-					createBrick (x, y, xBase, yBase, width, height, wallInstance);
-				} else if (path [x, y - 1]) {
-					createBrick (x, y, xBase, yBase, width, height, wallInstance);
-				} else if (path [x, y + 1]) {
-					createBrick (x, y, xBase, yBase, width, height, wallInstance);
-				}
-				//intermediate directions, if path is nearby
-				else if (path [x + 1, y + 1]) {
-					createBrick (x, y, xBase, yBase, width, height, wallInstance);
-				} else if (path [x - 1, y - 1]) {
-					createBrick (x, y, xBase, yBase, width, height, wallInstance);
-				} else if (path [x + 1, y - 1]) {
-					createBrick (x, y, xBase, yBase, width, height, wallInstance);
-				} else if (path [x - 1, y + 1]) {
-					createBrick (x, y, xBase, yBase, width, height, wallInstance);
+					//add squares on edges
+					if (x == 0 || y == 0 || x == width - 1 || y == height - 1) {
+						createBrick (x, y, xBase, yBase, width, height, wallInstance);
+					}
+					//cardinal directions, if there is a nearby path
+					else if (path [x + 1, y]) {
+						createBrick (x, y, xBase, yBase, width, height, wallInstance);
+					} else if (path [x - 1, y]) {
+						createBrick (x, y, xBase, yBase, width, height, wallInstance);
+					} else if (path [x, y - 1]) {
+						createBrick (x, y, xBase, yBase, width, height, wallInstance);
+					} else if (path [x, y + 1]) {
+						createBrick (x, y, xBase, yBase, width, height, wallInstance);
+					}
+					//intermediate directions, if path is nearby
+					else if (path [x + 1, y + 1]) {
+						createBrick (x, y, xBase, yBase, width, height, wallInstance);
+					} else if (path [x - 1, y - 1]) {
+						createBrick (x, y, xBase, yBase, width, height, wallInstance);
+					} else if (path [x + 1, y - 1]) {
+						createBrick (x, y, xBase, yBase, width, height, wallInstance);
+					} else if (path [x - 1, y + 1]) {
+						createBrick (x, y, xBase, yBase, width, height, wallInstance);
+					}
 				}
 			}
 		}
@@ -109,7 +119,7 @@ public class WallGeneration: MonoBehaviour {
 		wallInstance.transform.Translate (new Vector3 (xBase, yBase, zBase));
 	}
 
-	public void createBrick(int x, int y, int xBase, int yBase, int width, int height, GameObject wallInstance){
+	public void createBrick(float x, float y, float xBase, float yBase, float width, float height, GameObject wallInstance){
 
 		Instantiate (brick, new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), zBase), Quaternion.identity);
 		GameObject brickInstance = GameObject.Find("Brick(Clone)");
@@ -119,8 +129,8 @@ public class WallGeneration: MonoBehaviour {
 	
 	}
 
-	bool[,] generatePath(int width, int height, List<Vector2> starts, List<Vector2> ends){
-		bool[,] path = new bool[width,height];
+	bool[,] generatePath(float width, float height, List<Vector2> starts, List<Vector2> ends){
+		bool[,] path = new bool[(int)width,(int)height];
 
 		int size = starts.Count;
 
@@ -138,7 +148,7 @@ public class WallGeneration: MonoBehaviour {
 			if (end [1] == -1)
 				end [1] = height - 1;
 
-			int[,] wave = new int[width, height];
+			int[,] wave = new int[(int)width, (int)height];
 			int waveCount = 1;
 
 			List<Vector2> curPos = new List<Vector2>();
@@ -164,8 +174,8 @@ public class WallGeneration: MonoBehaviour {
 
 			done = false;
 			Vector2 backtracePos = end;
-			int relWidth = Math.Abs ((int)(start.x - end.x));
-			int relHeight = Math.Abs ((int)(start.y - end.y));
+			float relWidth = Math.Abs (start.x - end.x);
+			float relHeight = Math.Abs (start.y - end.y);
 			path [(int)backtracePos.x, (int)backtracePos.y] = true;
 			while (done == false) {
 				List<Vector2> neighbors = getFilledNeighbors (backtracePos, wave);

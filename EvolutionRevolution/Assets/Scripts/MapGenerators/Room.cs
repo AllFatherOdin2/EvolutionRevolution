@@ -7,20 +7,20 @@ namespace AssemblyCSharp
 {
 	public class Room
 	{
-		public int width;
-		public int height;
-		public int depth;
+		public float width;
+		public float height;
+		public float depth;
 
 		public string name;
 
-		public int xBase;
-		public int yBase;
-		public int zBase;
+		public float xBase;
+		public float yBase;
+		public float zBase;
 
 
 		public List<Wall> walls;
 
-		public Room (int width, int height, int depth, int xBase, int yBase, int zBase, string name){
+		public Room (float width, float height, float depth, float xBase, float yBase, float zBase, string name){
 			this.width = width;
 			this.height = height;
 			this.depth = depth;

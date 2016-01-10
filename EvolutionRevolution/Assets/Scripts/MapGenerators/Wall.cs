@@ -7,12 +7,12 @@ namespace AssemblyCSharp
 {
 	public class Wall
 	{
-		public int width;
-		public int height;
+		public float width;
+		public float height;
 
-		public int xBase;
-		public int yBase;
-		public int zBase;
+		public float xBase;
+		public float yBase;
+		public float zBase;
 
 		public string name;
 
@@ -26,7 +26,7 @@ namespace AssemblyCSharp
 		public List<Vector2> ends;
 
 
-		public Wall(int width, int height, int xBase, int yBase, int zBase, float xRotate, float yRotate, float zRotate, 
+		public Wall(float width, float height, float xBase, float yBase, float zBase, float xRotate, float yRotate, float zRotate, 
 			WallLocation wallLoc, List<Vector2> starts, List<Vector2> ends, string name){
 			this.width = width;
 			this.height = height;

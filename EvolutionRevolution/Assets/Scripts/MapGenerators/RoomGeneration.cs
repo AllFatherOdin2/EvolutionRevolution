@@ -67,13 +67,13 @@ public class RoomGeneration : MonoBehaviour {
 		}
 
 
-		for (int x = 10; x <= 40; x++) {
-			blockedTiles[0].Add (new Vector2 (x, 0));
-			blockedTiles[0].Add (new Vector2 (x, 80));
+		for (int x = 25; x <= 75; x++) {
+			blockedTiles[0].Add (new Vector2 (x, 25));
+			blockedTiles[0].Add (new Vector2 (x, 75));
 		}
-		for( int y = 0; y <= 80; y++){
-			blockedTiles[0].Add (new Vector2 (10, y));
-			blockedTiles[0].Add (new Vector2 (40, y));
+		for( int y = 25; y <= 75; y++){
+			blockedTiles[0].Add (new Vector2 (25, y));
+			blockedTiles[0].Add (new Vector2 (75, y));
 		}
 
 

@@ -95,11 +95,12 @@ MonoBehaviour:
   yBase: 0
   zBase: 0
   seed: 10
-  debugRoom: 1
-  debugWall: 1
+  debugRoom: 0
+  debugWall: 0
   starts: []
   ends: []
-  wallLocs: 010000000200000003000000040000000500000006000000
+  wallLocations: 000000000100000002000000030000000400000005000000
+  outsideWalls: 000000000100000002000000030000000400000005000000
   room: {fileID: 413084, guid: e22e0c3679c83eb4693c75dd224b67ef, type: 2}
   brick: {fileID: 439500, guid: 973a2a9f9ad00d045b3d58798de0028b, type: 2}
   newVertices: []
@@ -125,6 +126,14 @@ Prefab:
       propertyPath: brick2
       value: 
       objectReference: {fileID: 406452, guid: 6dda3821adf78b0419058fd8fa356a37, type: 2}
+    - target: {fileID: 0}
+      propertyPath: debugRoom
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: debugWall
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 103982}

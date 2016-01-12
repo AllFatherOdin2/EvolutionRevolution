@@ -17,12 +17,14 @@ public class RoomGeneration : MonoBehaviour {
 
 	public int seed = -1;
 
-	public bool debugRoom = true;
-	public bool debugWall = true;
+	public bool debugRoom = false;
+	public bool debugWall = false;
 
 	public List<Vector2> starts = new List<Vector2>();
 	public List<Vector2> ends = new List<Vector2>();
-	public WallLocation[] wallLocs = {WallLocation.xPos, WallLocation.yPos, WallLocation.zPos, WallLocation.xNeg, WallLocation.yNeg, WallLocation.zNeg};
+	public WallLocation[] wallLocations = {WallLocation.xPos, WallLocation.yPos, WallLocation.zPos, WallLocation.xNeg, WallLocation.yNeg, WallLocation.zNeg};
+	public List<List<Vector2>> blockedTiles = new List<List<Vector2>>();
+	public WallLocation[] outsideWalls = {WallLocation.xPos, WallLocation.yPos, WallLocation.zPos, WallLocation.xNeg, WallLocation.yNeg, WallLocation.zNeg};
 
 	public Transform room;
 	public Transform brick;
@@ -39,22 +41,59 @@ public class RoomGeneration : MonoBehaviour {
 		starts.Add(new Vector2(0,50));
 		ends.Add(new Vector2(-1,50));
 		*/
+
 		starts.Add( new Vector2(0,20) );
-		starts.Add( new Vector2(0,80) );
-		starts.Add( new Vector2(50,10) );
-		starts.Add( new Vector2(0,0) );
-		starts.Add( new Vector2(0,-1) );
+		//starts.Add( new Vector2(0,80) );
+		//starts.Add( new Vector2(50,10) );
+		starts.Add( new Vector2(0,5) );
+		starts.Add( new Vector2(0,-10) );
 		ends.Add( new Vector2(-1,60) );
-		ends.Add( new Vector2(50,10) );
-		ends.Add( new Vector2(-1,80) );
+		//ends.Add( new Vector2(50,10) );
+		//ends.Add( new Vector2(-1,80) );
 		ends.Add( new Vector2(99,-1) );
 		ends.Add( new Vector2(90,0) );
+
+
+		// x/y, one must be  min 0 max -1, dont use 0,0 -1,-1
+		/*
+		starts.Add( new Vector2(0,20) );
+		starts.Add( new Vector2(0,75) );
+		ends.Add( new Vector2(90,0) );
+		ends.Add( new Vector2(-1,30) );
+		*/
+
+		for (int i = 0; i < 6; i++) {
+			blockedTiles.Add(new List<Vector2> ());
+		}
+
+
+		for (int x = 10; x <= 40; x++) {
+			blockedTiles[0].Add (new Vector2 (x, 0));
+			blockedTiles[0].Add (new Vector2 (x, 80));
+		}
+		for( int y = 0; y <= 80; y++){
+			blockedTiles[0].Add (new Vector2 (10, y));
+			blockedTiles[0].Add (new Vector2 (40, y));
+		}
 
 
 
 		roomName = "Room" + xBase + yBase + zBase;
 
-		Room room = createRoom (width, height, depth, xBase, yBase, zBase, starts, ends, roomName, wallLocs);
+		double runtime = 0.0;
+		if (debugRoom) {
+			Debug.Log ("Room start: " + runtime);
+			runtime = Time.realtimeSinceStartup;
+		}
+
+		StartCoroutine (createRoom (width, height, depth, xBase, yBase, zBase, starts, ends, roomName, wallLocations, outsideWalls));
+
+
+		if (debugRoom) {
+			runtime = Time.realtimeSinceStartup - runtime;
+			Debug.Log ("Room end: " + runtime);
+		}
+
 
 		if (debugRoom) {
 			Debug.Log (room.name);
@@ -66,20 +105,19 @@ public class RoomGeneration : MonoBehaviour {
 	void Update () {}
 
 
-	public Room createRoom(float width, float height, float depth, float xBase, float yBase, float zBase, 
-		List<Vector2> starts, List<Vector2> ends, string roomName, WallLocation[] wallLocs){
-		double runtime = 0;
-		if (debugRoom) {
-			runtime = Time.realtimeSinceStartup;
-			Debug.Log ("Room start: " + runtime);
-		}
+	public IEnumerator createRoom(float width, float height, float depth, float xBase, float yBase, float zBase, 
+		List<Vector2> starts, List<Vector2> ends, string roomName, WallLocation[] wallLocations, WallLocation[] outsideWalls){
+
+
+
+		WaitForSeconds wait = new WaitForSeconds (.01f);
 
 
 		Instantiate (room, new Vector3 (0, 0, 0), Quaternion.identity);
 		GameObject roomInstance = GameObject.Find("Room(Clone)"); 
 		roomInstance.name = roomName;
 
-		foreach(WallLocation wallLoc in wallLocs){
+		foreach(WallLocation wallLoc in wallLocations){
 			int wallWidth = (int)width;
 			int wallHeight = (int)height;
 			int wallDepth = (int)depth;
@@ -93,6 +131,8 @@ public class RoomGeneration : MonoBehaviour {
 
 			bool[,] path;
 
+			List<Vector2> blocked = blockedTiles [(int)wallLoc];
+
 			switch(wallLoc)
 			{
 			case WallLocation.xPos:
@@ -100,44 +140,45 @@ public class RoomGeneration : MonoBehaviour {
 				//z/y depth/height
 				zflag = true;
 				yflag = true;
-				path = generatePath (wallDepth, wallHeight, starts, ends);
+				path = generatePath (wallDepth, wallHeight, starts, ends, blocked);
 				break;
 			case WallLocation.yPos:
 				wallHeight = 1;
 				//x/z width/depth
 				xflag = true;
 				zflag = true;
-				path = generatePath (wallWidth, wallDepth, starts, ends);
+				path = generatePath (wallWidth, wallDepth, starts, ends, blocked);
 				break;
 			case WallLocation.zPos:
 				wallDepth = 1;
 				//x/y width/height
 				xflag = true;
 				yflag = true;
-				path = generatePath (wallWidth, wallHeight, starts, ends);
+				path = generatePath (wallWidth, wallHeight, starts, ends, blocked);
 				break;
 			case WallLocation.xNeg:
 				startWidth = (int)width-1;
 				//z/y depth/height
 				zflag = true;
 				yflag = true;
-				path = generatePath (wallDepth, wallHeight, starts, ends);
+				path = generatePath (wallDepth, wallHeight, starts, ends, blocked);
 				break;
 			case WallLocation.yNeg:
 				startHeight = (int)height-1;
 				//x/z width/depth
 				xflag = true;
 				zflag = true;
-				path = generatePath (wallWidth, wallDepth, starts, ends);
+				path = generatePath (wallWidth, wallDepth, starts, ends, blocked);
 				break;
 			default:
 				startDepth = (int)depth-1;
 				//x/y width/height
 				xflag = true;
 				yflag = true;
-				path = generatePath (wallWidth, wallHeight, starts, ends);
+				path = generatePath (wallWidth, wallHeight, starts, ends, blocked);
 				break;
 			}
+
 
 			for (int x = startWidth; x < wallWidth; x++) {
 				for (int y = startHeight; y < wallHeight; y++) {
@@ -178,31 +219,35 @@ public class RoomGeneration : MonoBehaviour {
 						*/
 						//add squares on edges
 						Vector3 brickPos = new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), (z + zBase - depth / 2));
-						if (relCheckx == 0 || relChecky == 0 || relCheckx == relCheckxMax - 1 || relChecky == relCheckyMax - 1) {
+					
+						if (blocked.Contains(new Vector2(relCheckx,relChecky))) {
 							createBrick (brickPos, roomInstance);
+						} else if (relCheckx == 0 || relChecky == 0 || relCheckx == relCheckxMax - 1 || relChecky == relCheckyMax - 1) {
+							createBrick (brickPos, roomInstance);
+							//yield return wait;
 						}
 						//cardinal directions, if there is a nearby path
 						else if (path [relCheckx + 1, relChecky] || path [relCheckx - 1, relChecky] || path [relCheckx, relChecky - 1] || path [relCheckx, relChecky + 1]) {
 							createBrick (brickPos, roomInstance);
+							//yield return wait;
 						}
 						//intermediate directions, if path is nearby
 						else if (path [relCheckx + 1, relChecky + 1] || path [relCheckx - 1, relChecky - 1] || path [relCheckx + 1, relChecky - 1] || path [relCheckx - 1, relChecky + 1]) {
 							createBrick (brickPos, roomInstance);
+							yield return wait;
 						}
+
 
 					}
 				}
 			}
-			createBasicWallMesh (new Vector3 ((xBase - width / 2), (yBase - height / 2), (zBase - depth / 2)), width, height, depth);
+
+			//Pushing off for now.
+			//createBasicWallMesh (new Vector3 ((xBase - width / 2), (yBase - height / 2), (zBase - depth / 2)), width, height, depth);
 		}
 
 
-		if (debugRoom) {
-			runtime = Time.realtimeSinceStartup - runtime;
-			Debug.Log ("Room end: " + runtime);
-		}
-
-		return new Room (width, height, depth, xBase, yBase, zBase, roomName, wallLocs);
+		//return new Room (width, height, depth, xBase, yBase, zBase, roomName, wallLocs);
 	}
 
 	public List<Vector3> newVertices = new List<Vector3> ();
@@ -211,15 +256,7 @@ public class RoomGeneration : MonoBehaviour {
 
 	private Mesh mesh;
 
-	public void createBasicWallMesh(Vector3 meshPos, float width, float height, float depth){
-
-		/*
-		Instantiate (brick2, meshPos, Quaternion.identity);
-		GameObject brickInstance = GameObject.Find("Brick2(Clone)");
-		String brickwallName = roomName + ":Brick" + meshPos.x + meshPos.y + meshPos.z;
-		brickInstance.name = brickwallName;
-		brickInstance.transform.parent = wallInstance.transform;
-		*/
+	public void createBasicWallMesh(Vector3 meshPos, float width, float height, float depth, bool xflag, bool yflag, bool zflag){
 
 		mesh = GetComponent<MeshFilter> ().mesh;
 
@@ -267,42 +304,57 @@ public class RoomGeneration : MonoBehaviour {
 		String brickwallName = roomName + ":Brick" + brickPos.x + brickPos.y + brickPos.z;
 		brickInstance.name = brickwallName;
 		brickInstance.transform.parent = wallInstance.transform;
-
 	}
 
 
-	bool[,] generatePath(float width, float height, List<Vector2> starts, List<Vector2> ends){
+	bool[,] generatePath(float width, float height, List<Vector2> starts, List<Vector2> ends, List<Vector2> blocked){
 		bool[,] path = new bool[(int)width,(int)height];
 
 		int size = starts.Count;
 
-		for(int i = 0; i < size; i++){
+
+
+		for (int i = 0; i < size; i++) {
 			bool done = false;
 			Vector2 start = starts [i];
 			Vector2 end = ends [i];
-			if (start [0] == -1)
-				start [0] = width - 1;
-			if (start [1] == -1)
-				start [1] = height - 1;
+			float temp = 0;
+			if (start [0] < 0){
+				temp = start [0];
+				start [0] = width + temp;
+			}
+			if (start [1] < 0) {
+				temp = start [1];
+				start [1] = height + temp;
+			}
 
-			if (end [0] == -1)
-				end [0] = width - 1;
-			if (end [1] == -1)
-				end [1] = height - 1;
+			if (end [0] < 0) {
+				temp = end [0];
+				end [0] = width + temp;
+			}
+			if (end [1] < 0) {
+				temp = end [1];
+				end [1] = height + temp;
+			}
 
 			int[,] wave = new int[(int)width, (int)height];
+			foreach (Vector2 blockedTile in blocked) {
+				wave [(int)blockedTile.x, (int)blockedTile.y] = int.MaxValue;
+			}
 			int waveCount = 1;
 
 			List<Vector2> curPos = new List<Vector2>();
 			curPos.Add (start);
 
 			wave [(int)start.x, (int)start.y] = waveCount;
+			List<Vector2> tempPos = new List<Vector2> ();
+			int loopHuh = 0;
 			while (done == false) {
-				List<Vector2> tempPos = new List<Vector2> ();
 				foreach (Vector2 pos in curPos) {
 					List<Vector2> neighbors = getUnfilledNeighbors (pos, wave);
 					tempPos.AddRange (neighbors);
 					foreach (Vector2 neighbor in neighbors) {
+						loopHuh = 0;
 						wave [(int)neighbor.x, (int)neighbor.y] = waveCount+1;
 						if (neighbor.x == end.x && neighbor.y == end.y) {
 							done = true;
@@ -310,7 +362,13 @@ public class RoomGeneration : MonoBehaviour {
 						}
 					}
 				}
+				loopHuh++;
+				if (loopHuh > 100) {
+					throw new Exception ("Infinite loop in Room path Generation.");
+				}
+
 				curPos = tempPos;
+				tempPos = new List<Vector2> ();
 				waveCount++;
 			}
 
@@ -338,6 +396,12 @@ public class RoomGeneration : MonoBehaviour {
 					if (challengeCost != 0 && challengeCost < bestCurCost) {
 						bestNeighbor = neighbor;
 					} else if (challengeCost == bestCurCost) {
+
+
+						if (bestNeighbor.x == 1 || bestNeighbor.x == width - 1 || bestNeighbor.y == 1 || bestNeighbor.y == height - 1) {
+							bestNeighbor = neighbor;
+						}
+
 						float rand = UnityEngine.Random.value;
 						float check = (float)relHeight / ((float)relWidth+(float)relHeight);
 						if (relWidth < relHeight) {

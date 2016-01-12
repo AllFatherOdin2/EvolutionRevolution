@@ -177,23 +177,23 @@ public class RoomGeneration : MonoBehaviour {
 						if (relCheckx == 1 || relChecky == 1 || relCheckx == relCheckxMax - 2 || relChecky == relCheckyMax - 2) {
 						*/
 						//add squares on edges
+						Vector3 brickPos = new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), (z + zBase - depth / 2));
 						if (relCheckx == 0 || relChecky == 0 || relCheckx == relCheckxMax - 1 || relChecky == relCheckyMax - 1) {
-							Vector3 brickPos = new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), (z + zBase - depth / 2));
 							createBrick (brickPos, roomInstance);
 						}
 						//cardinal directions, if there is a nearby path
 						else if (path [relCheckx + 1, relChecky] || path [relCheckx - 1, relChecky] || path [relCheckx, relChecky - 1] || path [relCheckx, relChecky + 1]) {
-							Vector3 brickPos = new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), (z + zBase - depth / 2));
 							createBrick (brickPos, roomInstance);
 						}
 						//intermediate directions, if path is nearby
 						else if (path [relCheckx + 1, relChecky + 1] || path [relCheckx - 1, relChecky - 1] || path [relCheckx + 1, relChecky - 1] || path [relCheckx - 1, relChecky + 1]) {
-							Vector3 brickPos = new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), (z + zBase - depth / 2));
 							createBrick (brickPos, roomInstance);
 						}
+
 					}
 				}
 			}
+			createBasicWallMesh (new Vector3 ((xBase - width / 2), (yBase - height / 2), (zBase - depth / 2)), width, height, depth);
 		}
 
 
@@ -203,6 +203,61 @@ public class RoomGeneration : MonoBehaviour {
 		}
 
 		return new Room (width, height, depth, xBase, yBase, zBase, roomName, wallLocs);
+	}
+
+	public List<Vector3> newVertices = new List<Vector3> ();
+	public List<int> newTriangles = new List<int> ();
+	public List<Vector2> newUV = new List<Vector2>();
+
+	private Mesh mesh;
+
+	public void createBasicWallMesh(Vector3 meshPos, float width, float height, float depth){
+
+		/*
+		Instantiate (brick2, meshPos, Quaternion.identity);
+		GameObject brickInstance = GameObject.Find("Brick2(Clone)");
+		String brickwallName = roomName + ":Brick" + meshPos.x + meshPos.y + meshPos.z;
+		brickInstance.name = brickwallName;
+		brickInstance.transform.parent = wallInstance.transform;
+		*/
+
+		mesh = GetComponent<MeshFilter> ().mesh;
+
+		float x = meshPos.x;
+		float y = meshPos.y;
+		float z = meshPos.z;
+
+		newVertices.Add (new Vector3 (x, y, z));
+		newVertices.Add (new Vector3 (x + width, y, z));
+		newVertices.Add (new Vector3 (x, y + height, z));
+		newVertices.Add (new Vector3 (x + width, y + height, z));
+		newVertices.Add (new Vector3 (x, y, z + depth));
+		newVertices.Add (new Vector3 (x, y + height, z + depth));
+		newVertices.Add (new Vector3 (x + width, y, z + depth));
+		newVertices.Add (new Vector3 (x + width, y + height, z + depth));
+
+		newTriangles.Add (0);
+		newTriangles.Add (1);
+		newTriangles.Add (2);
+
+		newTriangles.Add (1);
+		newTriangles.Add (3);
+		newTriangles.Add (2);
+		//
+		newTriangles.Add (6);
+		newTriangles.Add (4);
+		newTriangles.Add (7);
+
+		newTriangles.Add (4);
+		newTriangles.Add (5);
+		newTriangles.Add (7);
+
+
+		mesh.Clear ();
+		mesh.vertices = newVertices.ToArray ();
+		mesh.triangles = newTriangles.ToArray ();
+		mesh.Optimize ();
+		mesh.RecalculateNormals ();
 	}
 
 	public void createBrick(Vector3 brickPos, GameObject wallInstance){

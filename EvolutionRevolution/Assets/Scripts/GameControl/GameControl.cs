@@ -11,6 +11,7 @@ public class GameControl : MonoBehaviour {
     public static GameControl control;
 
     public float health;
+    public float maxHealth;
     public float exp;
 
 
@@ -43,6 +44,7 @@ public class GameControl : MonoBehaviour {
         PlayerData data = new PlayerData();
         data.health = health;
         data.exp = exp;
+        data.maxHealth = maxHealth;
 
         bf.Serialize(file, data);
         file.Close();
@@ -61,15 +63,30 @@ public class GameControl : MonoBehaviour {
         }
     }
 
+    public void SetMaxHealthUp(float healthChange)
+    {
+        maxHealth = maxHealth + healthChange;
+        health = maxHealth;
+    }
+
+    public void SetMaxHealthDown(float healthChange)
+    {
+        maxHealth = maxHealth - healthChange;
+        health = maxHealth;
+    }
+
     public IEnumerator HealOverTime(float healAmt, float healTime, float healTick)
     //healAmt: total amount to heal player; healTime: total time to heal player over (sec); healTick frequency to heal for each amount (sec)
     {
         for (float f = 0.0f; f < healTime; f += healTick)
         {
-            float healOnTick = healTick / healTime;
-            healOnTick *= healAmt;
-            health += healOnTick;
-            yield return new WaitForSeconds(healTick);
+            if (health <= maxHealth)
+            {
+                float healOnTick = healTick / healTime;
+                healOnTick *= healAmt;
+                health += healOnTick;
+                yield return new WaitForSeconds(healTick);
+            }
         }
     }
 }
@@ -78,6 +95,7 @@ public class GameControl : MonoBehaviour {
 class PlayerData
 {
     public float health;
+    public float maxHealth;
     public float exp;
     //should do gets and sets and constructors
 }

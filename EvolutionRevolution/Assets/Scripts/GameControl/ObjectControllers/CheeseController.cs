@@ -3,6 +3,9 @@ using System.Collections;
 
 public class CheeseController : MonoBehaviour {
 
+    public Canvas canvas;
+
+
 	// Use this for initialization
 	void Start () {
 	
@@ -35,6 +38,7 @@ public class CheeseController : MonoBehaviour {
                 //GameControl.control.health = distance;
                 if (distance <= 2)
                     GameControl.control.StartCoroutine(GameControl.control.HealOverTime(10f, 1f, .05f));
+                    canvas.gameObject.SetActive(true);
                     this.gameObject.SetActive(false);
             }
         }

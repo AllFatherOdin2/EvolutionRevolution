@@ -20,7 +20,7 @@ public class CharacterControllercs : MonoBehaviour
     private float jumpSpeed = 8.0f;                  //Jumpspeed / Jumpheight 
     private float gravity = 20.0f;                   //Gravity for jump 
     private float runSpeed = 10.0f;                  //Speed when the Character is running 
-    private float walkSpeed = 4.0f;                  //Speed when the Character is walking (normal movement) 
+    private float walkSpeed = GameControl.control.walkSpeed;  //Speed when the Character is walking (normal movement) 
     private float rotateSpeed = 250.0f;              //Rotationspeed of the Character 
     private float walkBackMod = 0.75f;               //Speed in Percent for walk backwards and sidewalk 
 
@@ -35,6 +35,7 @@ public class CharacterControllercs : MonoBehaviour
     private float coolDown = 0.5f;                   //Cooldowntime for SideButtons 
     private CharacterController controller;          //CharacterController for movement 
     private bool thirdPerson = true;
+    private float lastScale = GameControl.control.scale;
 
     void Start()
     {
@@ -43,12 +44,22 @@ public class CharacterControllercs : MonoBehaviour
         thirdPersonCamera.enabled = true;
         m_Camera = thirdPersonCamera;
         m_MouseLook.Init(transform, m_Camera.transform);
-        //GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ; 
+        for(int i = 0;i<GameControl.control.numberOfScales;i++)
+        {
+            transform.localScale += new Vector3(0.1f,0.1f,0.1f);
+        }
     }
 
     //Every Frame 
     void Update()
     {
+        walkSpeed = GameControl.control.walkSpeed;
+        if (GameControl.control.scale != lastScale)
+        {
+            transform.localScale += new Vector3(GameControl.control.scale, GameControl.control.scale, GameControl.control.scale);
+            GameControl.control.scale = 0.0f;
+            lastScale = GameControl.control.scale;
+        }
         RotateView();
         //Set idel animation 
         moveStatus = "idle";

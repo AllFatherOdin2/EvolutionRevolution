@@ -643,8 +643,14 @@ public class RoomGeneration : MonoBehaviour {
 
 
 						if (bestNeighbor.x == width - 1 || bestNeighbor.y == height - 1) {
+							bestNeighbor = neighbor;
+							continue;
+						}
+						if (bestNeighbor.x == width - 2 || bestNeighbor.y == height - 2) {
+							if (!(neighbor.x == width - 1 && neighbor.y == width - 1)) {
 								bestNeighbor = neighbor;
 								continue;
+							}
 						}
 
 						if (bestNeighbor.x == 1 || bestNeighbor.y == 1  ) {

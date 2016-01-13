@@ -5,9 +5,9 @@ using System;
 using AssemblyCSharp;
 
 public class RoomGeneration : MonoBehaviour {
-	public float width = 200;
-	public float height = 100;
-	public float depth = 150;
+	public float width = 100;
+	public float height = 50;
+	public float depth = 75;
 
 	public string roomName = "";
 
@@ -52,7 +52,7 @@ public class RoomGeneration : MonoBehaviour {
 			blockedTiles.Add(new List<Vector2> ());
 		}
 
-
+		/*
 		for (int x = 25; x <= 75; x++) {
 			blockedTiles[0].Add (new Vector2 (x, 25));
 			blockedTiles[0].Add (new Vector2 (x, 75));
@@ -61,6 +61,7 @@ public class RoomGeneration : MonoBehaviour {
 			blockedTiles[0].Add (new Vector2 (25, y));
 			blockedTiles[0].Add (new Vector2 (75, y));
 		}
+		*/
 
 
 

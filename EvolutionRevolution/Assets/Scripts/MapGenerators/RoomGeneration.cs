@@ -106,8 +106,6 @@ public class RoomGeneration : MonoBehaviour {
 
 		for(int i = 0; i <wallLocations.Count; i ++) {
 			//TODO: gonna need a way to get walls, gonna worry about that later...
-
-			//TODO: calculate what starts and ends go to what walls and what passes on. If(dictionary.tryGetValue()) will return true if it exists
 			switch (wallLocations [i]) {
 			case WallLocation.xPos:
 
@@ -621,11 +619,13 @@ public class RoomGeneration : MonoBehaviour {
 			float relWidth = Math.Abs (start.x - end.x);
 			float relHeight = Math.Abs (start.y - end.y);
 			path [(int)backtracePos.x, (int)backtracePos.y] = true;
+
+
 			while (done == false) {
 				List<Vector2> neighbors = getFilledNeighbors (backtracePos, wave);
 				Vector2 bestNeighbor = new Vector2(-1,-1);
 				foreach (Vector2 neighbor in neighbors) {
-					if (bestNeighbor.x == -1 || bestNeighbor.y == -1) {
+					if (bestNeighbor.x <= -1 || bestNeighbor.y <= -1) {
 						bestNeighbor = neighbor;
 						continue;
 					}
@@ -640,28 +640,39 @@ public class RoomGeneration : MonoBehaviour {
 					if (challengeCost != 0 && challengeCost < bestCurCost) {
 						bestNeighbor = neighbor;
 					} else if (challengeCost == bestCurCost) {
-
-
-						if (bestNeighbor.x == width - 1 || bestNeighbor.y == height - 1) {
+						
+						if (bestNeighbor.x <= 1 || bestNeighbor.y <= 1) {
+							//bestNeighbor = neighbor;
+							continue;
+						}
+						if (bestNeighbor.x == end.x || bestNeighbor.y == end.y) {
 							bestNeighbor = neighbor;
 							continue;
 						}
-						if (bestNeighbor.x == width - 2 || bestNeighbor.y == height - 2) {
-							if (!(neighbor.x == width - 1 && neighbor.y == width - 1)) {
-								bestNeighbor = neighbor;
-								continue;
-							}
-						}
 
-						if (bestNeighbor.x == 1 || bestNeighbor.y == 1  ) {
-								bestNeighbor = neighbor;
-								continue;
-						}
+						if(bestNeighbor.x == end.x - 1 && neighbor.x == end.x)
+							continue;
 
+						if (bestNeighbor.y == end.y - 1 && neighbor.y == end.y)
+							continue;
+						
+
+						relWidth = Math.Abs (bestNeighbor.x - neighbor.x);
+						relHeight = Math.Abs (bestNeighbor.y - neighbor.y);
+
+						bool moveX = false;
+						if (neighbor.x != bestNeighbor.x)
+							moveX = true;
+
+						if (moveX && neighbor.x == end.x - 1)
+							continue;
+
+						if (!moveX && neighbor.y == end.y - 1)
+							continue;
 
 						float rand = UnityEngine.Random.value;
 						float check = (float)relHeight / ((float)relWidth+(float)relHeight);
-						if (relWidth < relHeight) {
+						if (!moveX) {
 							check = (float)relWidth / ((float)relWidth+(float)relHeight);
 						}
 

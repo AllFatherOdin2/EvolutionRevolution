@@ -20,39 +20,33 @@ public class RoomGeneration : MonoBehaviour {
 	public bool debugRoom = false;
 	public bool debugWall = false;
 
-	public List<Vector2> starts = new List<Vector2>();
-	public List<Vector2> ends = new List<Vector2>();
-	public WallLocation[] wallLocations = {WallLocation.xPos, WallLocation.yPos, WallLocation.zPos, WallLocation.xNeg, WallLocation.yNeg, WallLocation.zNeg};
+	public List<WallLocation> wallLocations = new List<WallLocation> ();
 	public List<List<Vector2>> blockedTiles = new List<List<Vector2>>();
-	public WallLocation[] outsideWalls = {WallLocation.xPos, WallLocation.yPos, WallLocation.zPos, WallLocation.xNeg, WallLocation.yNeg, WallLocation.zNeg};
-
+	public List<WallLocation> outsideWalls = new List<WallLocation>();
 	public Transform room;
 	public Transform brick;
 
 	// Use this for initialization
+	void Awake(){
+		wallLocations.Add (WallLocation.xPos);
+		wallLocations.Add (WallLocation.yPos);
+		wallLocations.Add (WallLocation.zPos);
+		wallLocations.Add (WallLocation.xNeg);
+		wallLocations.Add (WallLocation.yNeg);
+		wallLocations.Add (WallLocation.zNeg);
+
+		outsideWalls.Add (WallLocation.xPos);
+		outsideWalls.Add (WallLocation.yPos);
+		outsideWalls.Add (WallLocation.zPos);
+		outsideWalls.Add (WallLocation.xNeg);
+		outsideWalls.Add (WallLocation.yNeg);
+		outsideWalls.Add (WallLocation.zNeg);
+	}
 	void Start () {
+
 		if (seed > -1) {
 			UnityEngine.Random.seed = seed;
 		}
-
-		//-1 denotes the pofloat being at width max? not issue right now
-
-		/*
-		starts.Add(new Vector2(0,50));
-		ends.Add(new Vector2(-1,50));
-		*/
-
-		starts.Add( new Vector2(0,50) );
-		//starts.Add( new Vector2(0,80) );
-		//starts.Add( new Vector2(50,10) );
-		starts.Add( new Vector2(60,0) );
-		//starts.Add( new Vector2(0,-10) );
-		ends.Add( new Vector2(-1,60) );
-		//ends.Add( new Vector2(50,10) );
-		//ends.Add( new Vector2(-1,80) );
-		ends.Add( new Vector2(30,-1) );
-		//ends.Add( new Vector2(90,0) );
-
 
 		for (int i = 0; i < 6; i++) {
 			blockedTiles.Add(new List<Vector2> ());
@@ -98,133 +92,254 @@ public class RoomGeneration : MonoBehaviour {
 	void Update () {}
 
 	public IEnumerator createRoom(float width, float height, float depth, float xBase, float yBase, float zBase, 
-		string roomName, WallLocation[] wallLocations, WallLocation[] outsideWalls){
+		string roomName, List<WallLocation> wallLocations, List<WallLocation> outsideWalls){
+		Dictionary<WallLocation, List<Vector2>> startsList = new Dictionary<WallLocation, List<Vector2>>();
+		Dictionary<WallLocation, List<Vector2>> endsList = new Dictionary<WallLocation, List<Vector2>>();
+		List<Vector2> starts = new List<Vector2> ();
+		List<Vector2> ends = new List<Vector2> ();
+		List<Vector2> xStarts = new List<Vector2> ();
+		List<Vector2> yStarts = new List<Vector2> ();
+		List<Vector2> xEnds = new List<Vector2> ();
+		List<Vector2> yEnds = new List<Vector2> ();
 
-		List<Vector2> starts = new List<Vector2>();
-		List<Vector2> ends = new List<Vector2>();
 
-		float rand = UnityEngine.Random.value;
-		int xStartNum = 0;
-		int yStartNum = 0;
-		int xEndNum = 0;
-		int yEndNum = 0;
+		for(int i = 0; i <wallLocations.Count; i ++) {
+			//TODO: gonna need a way to get walls, gonna worry about that later...
 
-		if (rand <= .01) {
-			xStartNum = 0;
-		} else if (rand < .15){
-			xStartNum = 1;
-		} else if (rand < .85) {
-			xStartNum = 2;
-		} else if (rand < .99) {
-			xStartNum = 3;
-		}else {
-			xStartNum = 4;
-		}
-		rand = UnityEngine.Random.value;
-		if (rand <= .01) {
-			yStartNum = 0;
-		} else if (rand < .15){
-			yStartNum = 1;
-		} else if (rand < .85) {
-			yStartNum = 2;
-		} else if (rand < .99) {
-			yStartNum = 3;
-		} else {
-			yStartNum = 4;
-		}
+			//TODO: calculate what starts and ends go to what walls and what passes on. If(dictionary.tryGetValue()) will return true if it exists
+			switch (wallLocations [i]) {
+			case WallLocation.xPos:
 
-		rand = UnityEngine.Random.value;
-		if (rand <= .01) {
-			xEndNum = 0;
-		} else if (rand < .15){
-			xEndNum = 1;
-		} else if (rand < .85) {
-			xEndNum = 2;
-		} else if (rand < .99) {
-			xEndNum = 3;
-		}else {
-			xEndNum = 4;
-		}
-		rand = UnityEngine.Random.value;
-		if (rand <= .01) {
-			yEndNum = 0;
-		} else if (rand < .15){
-			yEndNum = 1;
-		} else if (rand < .85) {
-			yEndNum = 2;
-		} else if (rand < .99) {
-			yEndNum = 3;
-		} else {
-			yEndNum = 4;
-		}
-		int xrel;
-		int yrel;
+				if (startsList.TryGetValue (WallLocation.zPos, out starts)) {
+					xStarts = getXStarts (starts);
+				} else {
+					//TODO:Try and get the value from rest of house...
 
-		if (wallLocations [0] == WallLocation.zPos || wallLocations [0] == WallLocation.zNeg) {
-			xrel = (int)((width - 4) / yStartNum);
-			yrel = (int)((height - 4) / xStartNum);
-		} else if (wallLocations [0] == WallLocation.yPos || wallLocations [0] == WallLocation.yNeg) {
-			xrel = (int)((width - 4) / yStartNum);
-			yrel = (int)((depth - 4) / xStartNum);
-		} else {
-			xrel = (int)((depth - 4) / yStartNum);
-			yrel = (int)((height - 4) / xStartNum);
-		}
+					xStarts = generateRandomXStarts (width, height, depth, wallLocations [i]);
+				}
 
-		for (int x = 0; x < xStartNum; x++) {
-			starts.Add (new Vector2 (0, UnityEngine.Random.Range ((yrel * x) + 2, yrel * (x + 1))));
-		}
-		for (int y = 0; y < yStartNum; y++) {
-			starts.Add (new Vector2 (UnityEngine.Random.Range ((xrel * y) + 2, xrel * (y + 1)), 0));
-		}
-			
-		if (wallLocations [0] == WallLocation.zPos || wallLocations [0] == WallLocation.zNeg) {
-			xrel = (int)((width - 4) / yEndNum);
-			yrel = (int)((height - 4) / xEndNum);
-		} else if (wallLocations [0] == WallLocation.yPos || wallLocations [0] == WallLocation.yNeg) {
-			xrel = (int)((width - 4) / yEndNum);
-			yrel = (int)((depth - 4) / xEndNum);
-		} else {
-			xrel = (int)((depth - 4) / yEndNum);
-			yrel = (int)((height - 4) / xEndNum);
-		}
+				if (startsList.TryGetValue (WallLocation.yPos, out starts)) {
+					yStarts = switchXY(getXStarts (starts));
+				} else {
+					//TODO:Try and get the value from rest of house...
 
-		for (int x = 0; x < xEndNum; x++) {
-			ends.Add (new Vector2 (-1, UnityEngine.Random.Range ((yrel * x) + 2, yrel * (x + 1))));
-		}
-		for (int y = 0; y < yEndNum; y++) {
-			ends.Add (new Vector2 (UnityEngine.Random.Range ((xrel * y) + 2, xrel * (y + 1)), -1));
-		}
+					yStarts = generateRandomYStarts (width, height, depth, wallLocations [i]);
+				}
 
-		while (starts.Count != ends.Count) {
-			if (starts.Count > ends.Count) {
-				ends.Add(ends[(int)UnityEngine.Random.Range(0, ends.Count)]);
-			} else if (starts.Count < ends.Count) {
-				starts.Add(starts[(int)UnityEngine.Random.Range(0, starts.Count)]);
+				if (startsList.TryGetValue (WallLocation.zNeg, out starts)) {
+					xEnds = switchMaxMin(getXStarts (starts));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					xEnds = generateRandomXEnds (width, height, depth, wallLocations [i]);
+				}
+				if (startsList.TryGetValue (WallLocation.yNeg, out starts)) {
+					yEnds = switchMaxMin( switchXY( getXStarts (starts)));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					yEnds = generateRandomYEnds (width, height, depth, wallLocations [i]);
+				}
+
+				break;
+			case WallLocation.yPos:
+
+				if (startsList.TryGetValue (WallLocation.xPos, out starts)) {
+					xStarts = switchXY(getYStarts (starts));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					xStarts = generateRandomXStarts (width, height, depth, wallLocations [i]);
+				}
+
+				if (startsList.TryGetValue (WallLocation.zPos, out starts)) {
+					yStarts = getYStarts (starts);
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					yStarts = generateRandomYStarts (width, height, depth, wallLocations [i]);
+				}
+
+				if (startsList.TryGetValue (WallLocation.xNeg, out starts)) {
+					xEnds = switchMaxMin( switchXY(getYStarts (starts)));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					xEnds = generateRandomXEnds (width, height, depth, wallLocations [i]);
+				}
+				if (startsList.TryGetValue (WallLocation.zNeg, out starts)) {
+					yEnds = switchMaxMin (getYStarts (starts));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					yEnds = generateRandomYEnds (width, height, depth, wallLocations [i]);
+				}
+				break;
+			case WallLocation.zPos:
+
+				if (startsList.TryGetValue (WallLocation.xPos, out starts)) {
+					xStarts = getXStarts (starts);
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					xStarts = generateRandomXStarts (width, height, depth, wallLocations [i]);
+				}
+
+				if (startsList.TryGetValue (WallLocation.yPos, out starts)) {
+					yStarts = getYStarts (starts);
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					yStarts = generateRandomYStarts (width, height, depth, wallLocations [i]);
+				}
+
+				if (startsList.TryGetValue (WallLocation.xNeg, out starts)) {
+					xEnds = switchMaxMin( getXStarts (starts));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					xEnds = generateRandomXEnds (width, height, depth, wallLocations [i]);
+				}
+				if (startsList.TryGetValue (WallLocation.yNeg, out starts)) {
+					yEnds = switchMaxMin( getYStarts (starts));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					yEnds = generateRandomYEnds (width, height, depth, wallLocations [i]);
+				}
+				break;
+			case WallLocation.xNeg:
+
+				if (endsList.TryGetValue (WallLocation.zPos, out ends)) {
+					xStarts = switchMaxMin( getXEnds (ends));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					xStarts = generateRandomXStarts (width, height, depth, wallLocations [i]);
+				}
+
+				if (endsList.TryGetValue (WallLocation.yPos, out ends)) {
+					yStarts = switchMaxMin( switchXY (getXEnds (ends)));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					yStarts = generateRandomYStarts (width, height, depth, wallLocations [i]);
+				}
+
+				if (endsList.TryGetValue (WallLocation.zNeg, out ends)) {
+					xEnds = getXEnds (ends);
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					xEnds = generateRandomXEnds (width, height, depth, wallLocations [i]);
+				}
+				if (endsList.TryGetValue (WallLocation.yNeg, out ends)) {
+					yEnds = switchXY(getXEnds (ends));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					yEnds = generateRandomYEnds (width, height, depth, wallLocations [i]);
+				}
+				break;
+			case WallLocation.yNeg:
+
+				if (endsList.TryGetValue (WallLocation.xPos, out ends)) {
+					xStarts = switchXY(switchMaxMin( getYEnds (ends)));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					xStarts = generateRandomXStarts (width, height, depth, wallLocations [i]);
+				}
+
+				if (endsList.TryGetValue (WallLocation.zPos, out ends)) {
+					yStarts = switchMaxMin( getYEnds (ends));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					yStarts = generateRandomYStarts (width, height, depth, wallLocations [i]);
+				}
+
+				if (endsList.TryGetValue (WallLocation.xNeg, out ends)) {
+					xEnds = switchXY( getYEnds (ends));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					xEnds = generateRandomXEnds (width, height, depth, wallLocations [i]);
+				}
+				if (endsList.TryGetValue (WallLocation.zNeg, out ends)) {
+					yEnds = getYEnds (ends);
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					yEnds = generateRandomYEnds (width, height, depth, wallLocations [i]);
+				}
+				break;
+			default:
+
+				if (endsList.TryGetValue (WallLocation.xPos, out ends)) {
+					xStarts = switchMaxMin( getXEnds (ends));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					xStarts = generateRandomXStarts (width, height, depth, wallLocations [i]);
+				}
+
+				if (endsList.TryGetValue (WallLocation.yPos, out ends)) {
+					yStarts = switchMaxMin( getYEnds (ends));
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					yStarts = generateRandomYStarts (width, height, depth, wallLocations [i]);
+				}
+
+				if (endsList.TryGetValue (WallLocation.xNeg, out ends)) {
+					xEnds = getXEnds (ends);
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					xEnds = generateRandomXEnds (width, height, depth, wallLocations [i]);
+				}
+				if (endsList.TryGetValue (WallLocation.yNeg, out ends)) {
+					yEnds = getYEnds (ends);
+				} else {
+					//TODO:Try and get the value from rest of house...
+
+					yEnds = generateRandomYEnds (width, height, depth, wallLocations [i]);
+				}
+				break;
 			}
+
+			starts = new List<Vector2> ();
+			starts.AddRange (xStarts);
+			starts.AddRange (yStarts);
+
+			ends = new List<Vector2> ();
+			ends.AddRange (xEnds);
+			ends.AddRange (yEnds);
+
+			while (starts.Count != ends.Count) {
+				if (starts.Count > ends.Count) {
+					ends.Add (ends [(int)UnityEngine.Random.Range (0, ends.Count)]);
+				} else if (starts.Count < ends.Count) {
+					starts.Add (starts [(int)UnityEngine.Random.Range (0, starts.Count)]);
+				}
+			}
+
+			starts = randomizeList (starts);
+			ends = randomizeList (ends);
+
+			startsList.Add (wallLocations [i], starts);
+			endsList.Add (wallLocations [i], ends);
+
 		}
 
-		for (int i = 0; i < starts.Count; i++) {
-			Vector2 temp = starts [i];
-			int randomIndex = UnityEngine.Random.Range (i, starts.Count);
-			starts [i] = starts [randomIndex];
-			starts [randomIndex] = temp;
-
-
-			Vector2 temp2 = ends [i];
-			int randomIndex2 = UnityEngine.Random.Range (i, ends.Count);
-			ends [i] = ends [randomIndex2];
-			ends [randomIndex2] = temp2;
-		}
-
-
-		return createRoom (width, height, depth, xBase, yBase, zBase, starts, ends, roomName, wallLocations, outsideWalls);
+		return createRoom (width, height, depth, xBase, yBase, zBase, startsList, endsList, roomName, wallLocations, outsideWalls);
 	
 	}
 
 
-	public IEnumerator createRoom(float width, float height, float depth, float xBase, float yBase, float zBase, 
-		List<Vector2> starts, List<Vector2> ends, string roomName, WallLocation[] wallLocations, WallLocation[] outsideWalls){
+	private IEnumerator createRoom(float width, float height, float depth, float xBase, float yBase, float zBase, 
+		Dictionary<WallLocation, List<Vector2>> startsList, Dictionary<WallLocation, List<Vector2>> endsList, string roomName, List<WallLocation> wallLocations, List<WallLocation> outsideWalls){
 
 		WaitForSeconds wait = new WaitForSeconds (.01f);
 
@@ -248,6 +363,8 @@ public class RoomGeneration : MonoBehaviour {
 			bool[,] path;
 
 			List<Vector2> blocked = blockedTiles [(int)wallLoc];
+			List<Vector2> starts;
+			List<Vector2> ends;
 
 			switch(wallLoc)
 			{
@@ -256,6 +373,8 @@ public class RoomGeneration : MonoBehaviour {
 				//z/y depth/height
 				zflag = true;
 				yflag = true;
+				startsList.TryGetValue (wallLoc, out starts);
+				endsList.TryGetValue (wallLoc, out ends);
 				path = generatePath (wallDepth, wallHeight, starts, ends, blocked);
 				break;
 			case WallLocation.yPos:
@@ -263,6 +382,8 @@ public class RoomGeneration : MonoBehaviour {
 				//x/z width/depth
 				xflag = true;
 				zflag = true;
+				startsList.TryGetValue (wallLoc, out starts);
+				endsList.TryGetValue (wallLoc, out ends);
 				path = generatePath (wallWidth, wallDepth, starts, ends, blocked);
 				break;
 			case WallLocation.zPos:
@@ -270,6 +391,8 @@ public class RoomGeneration : MonoBehaviour {
 				//x/y width/height
 				xflag = true;
 				yflag = true;
+				startsList.TryGetValue (wallLoc, out starts);
+				endsList.TryGetValue (wallLoc, out ends);
 				path = generatePath (wallWidth, wallHeight, starts, ends, blocked);
 				break;
 			case WallLocation.xNeg:
@@ -277,6 +400,8 @@ public class RoomGeneration : MonoBehaviour {
 				//z/y depth/height
 				zflag = true;
 				yflag = true;
+				startsList.TryGetValue (wallLoc, out starts);
+				endsList.TryGetValue (wallLoc, out ends);
 				path = generatePath (wallDepth, wallHeight, starts, ends, blocked);
 				break;
 			case WallLocation.yNeg:
@@ -284,6 +409,8 @@ public class RoomGeneration : MonoBehaviour {
 				//x/z width/depth
 				xflag = true;
 				zflag = true;
+				startsList.TryGetValue (wallLoc, out starts);
+				endsList.TryGetValue (wallLoc, out ends);
 				path = generatePath (wallWidth, wallDepth, starts, ends, blocked);
 				break;
 			default:
@@ -291,6 +418,8 @@ public class RoomGeneration : MonoBehaviour {
 				//x/y width/height
 				xflag = true;
 				yflag = true;
+				startsList.TryGetValue (wallLoc, out starts);
+				endsList.TryGetValue (wallLoc, out ends);
 				path = generatePath (wallWidth, wallHeight, starts, ends, blocked);
 				break;
 			}
@@ -372,7 +501,7 @@ public class RoomGeneration : MonoBehaviour {
 
 	private Mesh mesh;
 
-	public void createBasicWallMesh(Vector3 meshPos, float width, float height, float depth, bool xflag, bool yflag, bool zflag){
+	private void createBasicWallMesh(Vector3 meshPos, float width, float height, float depth, bool xflag, bool yflag, bool zflag){
 
 		mesh = GetComponent<MeshFilter> ().mesh;
 
@@ -413,7 +542,7 @@ public class RoomGeneration : MonoBehaviour {
 		mesh.RecalculateNormals ();
 	}
 
-	public void createBrick(Vector3 brickPos, GameObject wallInstance){
+	private void createBrick(Vector3 brickPos, GameObject wallInstance){
 
 		Instantiate (brick, brickPos, Quaternion.identity);
 		GameObject brickInstance = GameObject.Find("Brick(Clone)");
@@ -423,12 +552,10 @@ public class RoomGeneration : MonoBehaviour {
 	}
 
 
-	bool[,] generatePath(float width, float height, List<Vector2> starts, List<Vector2> ends, List<Vector2> blocked){
+	private bool[,] generatePath(float width, float height, List<Vector2> starts, List<Vector2> ends, List<Vector2> blocked){
 		bool[,] path = new bool[(int)width,(int)height];
 
 		int size = starts.Count;
-
-
 
 		for (int i = 0; i < size; i++) {
 			bool done = false;
@@ -514,9 +641,16 @@ public class RoomGeneration : MonoBehaviour {
 					} else if (challengeCost == bestCurCost) {
 
 
-						if (bestNeighbor.x == 1 || bestNeighbor.x == width - 1 || bestNeighbor.y == 1 || bestNeighbor.y == height - 1) {
-							bestNeighbor = neighbor;
+						if (bestNeighbor.x == width - 1 || bestNeighbor.y == height - 1) {
+								bestNeighbor = neighbor;
+								continue;
 						}
+
+						if (bestNeighbor.x == 1 || bestNeighbor.y == 1  ) {
+								bestNeighbor = neighbor;
+								continue;
+						}
+
 
 						float rand = UnityEngine.Random.value;
 						float check = (float)relHeight / ((float)relWidth+(float)relHeight);
@@ -541,7 +675,7 @@ public class RoomGeneration : MonoBehaviour {
 	}
 
 
-	List<Vector2> getUnfilledNeighbors(Vector2 curPos, int[,] wave){
+	private List<Vector2> getUnfilledNeighbors(Vector2 curPos, int[,] wave){
 		List<Vector2> neighbors = new List<Vector2>();
 
 		try{
@@ -602,5 +736,233 @@ public class RoomGeneration : MonoBehaviour {
 
 		return neighbors;
 	}
+
+	private List<Vector2> generateRandomXStarts(float width, float height, float depth, WallLocation wallLocation){
+		List<Vector2> starts = new List<Vector2> ();
+		float rand = UnityEngine.Random.value;
+		int xStartNum;
+
+		int yrel;
+
+		if (rand <= .01) {
+			xStartNum = 0;
+		} else if (rand < .15) {
+			xStartNum = 1;
+		} else if (rand < .85) {
+			xStartNum = 2;
+		} else if (rand < .99) {
+			xStartNum = 3;
+		} else {
+			xStartNum = 4;
+		}
+
+
+		if (wallLocation == WallLocation.zPos || wallLocation == WallLocation.zNeg) {
+			yrel = (int)((height - 4) / xStartNum);
+		} else if (wallLocation == WallLocation.yPos || wallLocation == WallLocation.yNeg) {
+			yrel = (int)((depth - 4) / xStartNum);
+		} else {
+			yrel = (int)((height - 4) / xStartNum);
+		}
+
+		for (int x = 0; x < xStartNum; x++) {
+			starts.Add (new Vector2 (0, UnityEngine.Random.Range ((yrel * x) + 2, yrel * (x + 1))));
+		}
+
+		return starts;
+	}
+
+	private List<Vector2> generateRandomYStarts(float width, float height, float depth, WallLocation wallLocation){
+		List<Vector2> starts = new List<Vector2> ();
+		float rand = UnityEngine.Random.value;
+		int yStartNum;
+
+		int xrel;
+
+		if (rand <= .01) {
+			yStartNum = 0;
+		} else if (rand < .15) {
+			yStartNum = 1;
+		} else if (rand < .85) {
+			yStartNum = 2;
+		} else if (rand < .99) {
+			yStartNum = 3;
+		} else {
+			yStartNum = 4;
+		}
+
+		if (wallLocation == WallLocation.zPos || wallLocation == WallLocation.zNeg) {
+			xrel = (int)((width - 4) / yStartNum);
+		} else if (wallLocation == WallLocation.yPos || wallLocation == WallLocation.yNeg) {
+			xrel = (int)((width - 4) / yStartNum);
+		} else {
+			xrel = (int)((depth - 4) / yStartNum);
+		}
+
+		for (int y = 0; y < yStartNum; y++) {
+			starts.Add (new Vector2 (UnityEngine.Random.Range ((xrel * y) + 2, xrel * (y + 1)), 0));
+		}
+
+		return starts;
+	}
+
+	private List<Vector2> generateRandomXEnds(float width, float height, float depth, WallLocation wallLocation){
+		List<Vector2> ends = new List<Vector2> ();
+		float rand = UnityEngine.Random.value;
+		int xEndNum;
+
+		int yrel;
+
+		if (rand <= .01) {
+			xEndNum = 0;
+		} else if (rand < .15) {
+			xEndNum = 1;
+		} else if (rand < .85) {
+			xEndNum = 2;
+		} else if (rand < .99) {
+			xEndNum = 3;
+		} else {
+			xEndNum = 4;
+		}
+
+		if (wallLocation == WallLocation.zPos || wallLocation == WallLocation.zNeg) {
+			yrel = (int)((height - 4) / xEndNum);
+		} else if (wallLocation == WallLocation.yPos || wallLocation == WallLocation.yNeg) {
+			yrel = (int)((depth - 4) / xEndNum);
+		} else {
+			yrel = (int)((height - 4) / xEndNum);
+		}
+
+		for (int x = 0; x < xEndNum; x++) {
+			ends.Add (new Vector2 (-1, UnityEngine.Random.Range ((yrel * x) + 2, yrel * (x + 1))));
+		}
+
+		return ends;
+	}
+
+	private List<Vector2> generateRandomYEnds(float width, float height, float depth, WallLocation wallLocation){
+		List<Vector2> ends = new List<Vector2> ();
+		float rand = UnityEngine.Random.value;
+		int yEndNum;
+
+		int xrel;
+
+		if (rand <= .01) {
+			yEndNum = 0;
+		} else if (rand < .15) {
+			yEndNum = 1;
+		} else if (rand < .85) {
+			yEndNum = 2;
+		} else if (rand < .99) {
+			yEndNum = 3;
+		} else {
+			yEndNum = 4;
+		}
+
+		if (wallLocation == WallLocation.zPos || wallLocation == WallLocation.zNeg) {
+			xrel = (int)((width - 4) / yEndNum);
+		} else if (wallLocation == WallLocation.yPos || wallLocation == WallLocation.yNeg) {
+			xrel = (int)((width - 4) / yEndNum);
+		} else {
+			xrel = (int)((depth - 4) / yEndNum);
+		}
+
+		for (int y = 0; y < yEndNum; y++) {
+			ends.Add (new Vector2 (UnityEngine.Random.Range ((xrel * y) + 2, xrel * (y + 1)), -1));
+		}
+
+		return ends;
+	}
+
+	private List<Vector2> randomizeList(List<Vector2> list){
+		for (int i = 0; i < list.Count; i++) {
+			Vector2 temp = list [i];
+			int randomIndex = UnityEngine.Random.Range (i, list.Count);
+			list [i] = list [randomIndex];
+			list [randomIndex] = temp;
+		}
+		return list;
+	}
+
+	private List<Vector2> getXStarts(List<Vector2> starts){
+		List<Vector2> results = new List<Vector2> ();
+		foreach (Vector2 start in starts) {
+			if (start.x == 0) {
+				results.Add (start);
+			}
+		}
+
+		return results;
+	}
+
+	private List<Vector2> getYStarts(List<Vector2> starts){
+		List<Vector2> results = new List<Vector2> ();
+		foreach (Vector2 start in starts) {
+			if (start.y == 0) {
+				results.Add (start);
+			}
+		}
+
+		return results;
+	}
+
+	private List<Vector2> getXEnds(List<Vector2> ends){
+		List<Vector2> results = new List<Vector2> ();
+		foreach (Vector2 end in ends) {
+			if (end.x < 0) {
+				results.Add (end);
+			}
+		}
+
+		return results;
+	}
+
+	private List<Vector2> getYEnds(List<Vector2> ends){
+		List<Vector2> results = new List<Vector2> ();
+		foreach (Vector2 end in ends) {
+			if (end.y < 0) {
+				results.Add (end);
+			}
+		}
+
+		return results;
+	}
+
+	private List<Vector2> switchMaxMin(List<Vector2> list){
+		List<Vector2> results = new List<Vector2> ();
+
+		foreach (Vector2 item in list) {
+			Vector2 temp = item;
+			if (item.x == 0) {
+				temp.x = -1;
+			}
+
+			if (item.y == 0) {
+				temp.y = -1;
+			}
+
+			if (item.x == -1) {
+				temp.x = 0;
+			}
+			if (item.y == -1) {
+				temp.y = 0;
+			}
+
+			results.Add (temp);
+		}
+
+		return results;
+	}
+
+	private List<Vector2> switchXY(List<Vector2> list){
+		List<Vector2> results = new List<Vector2> ();
+		foreach (Vector2 item in list) {
+			Vector2 temp = new Vector2 ();
+			temp.x = item.y;
+			temp.y = item.x;
+			results.Add (temp);
+		}
+		return results;
+	}
 }
-	
+

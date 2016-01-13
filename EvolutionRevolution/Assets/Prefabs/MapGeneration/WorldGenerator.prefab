@@ -97,10 +97,8 @@ MonoBehaviour:
   seed: 10
   debugRoom: 0
   debugWall: 0
-  starts: []
-  ends: []
-  wallLocations: 000000000100000002000000030000000400000005000000
-  outsideWalls: 000000000100000002000000030000000400000005000000
+  wallLocations: 
+  outsideWalls: 
   room: {fileID: 413084, guid: e22e0c3679c83eb4693c75dd224b67ef, type: 2}
   brick: {fileID: 439500, guid: 973a2a9f9ad00d045b3d58798de0028b, type: 2}
   newVertices: []
@@ -113,6 +111,14 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: outsideWalls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: wallLocations.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: wallScript
       value: 
@@ -133,6 +139,54 @@ Prefab:
     - target: {fileID: 0}
       propertyPath: debugWall
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: wallLocations.Array.data[0]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: wallLocations.Array.data[1]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: wallLocations.Array.data[2]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: wallLocations.Array.data[3]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: wallLocations.Array.data[4]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: wallLocations.Array.data[5]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: outsideWalls.Array.data[0]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: outsideWalls.Array.data[1]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: outsideWalls.Array.data[2]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: outsideWalls.Array.data[3]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: outsideWalls.Array.data[4]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: outsideWalls.Array.data[5]
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}

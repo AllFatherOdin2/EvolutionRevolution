@@ -25,6 +25,7 @@ public class RoomGeneration : MonoBehaviour {
 	public List<WallLocation> outsideWalls = new List<WallLocation>();
 	public Transform room;
 	public Transform brick;
+	public Transform meshBrick;
 
 	// Use this for initialization
 	void Awake(){
@@ -423,7 +424,7 @@ public class RoomGeneration : MonoBehaviour {
 				break;
 			}
 
-
+			float count = 0;
 			for (int x = startWidth; x < wallWidth; x++) {
 				for (int y = startHeight; y < wallHeight; y++) {
 					for( int z = startDepth; z < wallDepth; z++){
@@ -467,21 +468,23 @@ public class RoomGeneration : MonoBehaviour {
 						if (blocked.Contains(new Vector2(relCheckx,relChecky))) {
 							createBrick (brickPos, roomInstance);
 						} else if (relCheckx == 0 || relChecky == 0 || relCheckx == relCheckxMax - 1 || relChecky == relCheckyMax - 1) {
+							//createMeshBrick (brickPos, roomInstance, relCheckx, relChecky, path, xflag, yflag, zflag);
 							createBrick (brickPos, roomInstance);
-							//yield return wait;
 						}
 						//cardinal directions, if there is a nearby path
 						else if (path [relCheckx + 1, relChecky] || path [relCheckx - 1, relChecky] || path [relCheckx, relChecky - 1] || path [relCheckx, relChecky + 1]) {
 							createBrick (brickPos, roomInstance);
-							//yield return wait;
 						}
 						//intermediate directions, if path is nearby
 						else if (path [relCheckx + 1, relChecky + 1] || path [relCheckx - 1, relChecky - 1] || path [relCheckx + 1, relChecky - 1] || path [relCheckx - 1, relChecky + 1]) {
 							createBrick (brickPos, roomInstance);
-							yield return wait;
 						}
 
-
+						count++;
+						if (count >= 1000) {
+							count = 0;
+							yield return wait;
+						}
 					}
 				}
 			}
@@ -494,12 +497,12 @@ public class RoomGeneration : MonoBehaviour {
 		//return new Room (width, height, depth, xBase, yBase, zBase, roomName, wallLocs);
 	}
 
-	public List<Vector3> newVertices = new List<Vector3> ();
-	public List<int> newTriangles = new List<int> ();
-	public List<Vector2> newUV = new List<Vector2>();
+	private List<Vector3> newVertices = new List<Vector3> ();
+	private List<int> newTriangles = new List<int> ();
+	private List<Vector2> newUV = new List<Vector2>();
 
 	private Mesh mesh;
-
+	/*
 	private void createBasicWallMesh(Vector3 meshPos, float width, float height, float depth, bool xflag, bool yflag, bool zflag){
 
 		mesh = GetComponent<MeshFilter> ().mesh;
@@ -539,15 +542,146 @@ public class RoomGeneration : MonoBehaviour {
 		mesh.triangles = newTriangles.ToArray ();
 		mesh.Optimize ();
 		mesh.RecalculateNormals ();
-	}
+	}*/
 
 	private void createBrick(Vector3 brickPos, GameObject wallInstance){
+		GameObject brickInstance;
+		try{
+			//brick already exists at this location
+			brickInstance = GameObject.Find(roomName + ":Brick" + brickPos.x + brickPos.y + brickPos.z);
+			brickInstance.transform.parent = wallInstance.transform;
+			
+		} catch (Exception){
+			Instantiate (brick, brickPos, Quaternion.identity);
+			brickInstance = GameObject.Find ("Brick(Clone)");
+			String brickwallName = roomName + ":Brick" + brickPos.x + brickPos.y + brickPos.z;
+			brickInstance.name = brickwallName;
+			brickInstance.transform.parent = wallInstance.transform;
+		}
+	}
 
-		Instantiate (brick, brickPos, Quaternion.identity);
-		GameObject brickInstance = GameObject.Find("Brick(Clone)");
-		String brickwallName = roomName + ":Brick" + brickPos.x + brickPos.y + brickPos.z;
+	private void createMeshBrick(Vector3 brickPos, GameObject wallInstance, int checkX, int checkY, bool[,] path, bool xflag, bool yflag, bool zflag){
+		
+
+		Instantiate (meshBrick, brickPos, Quaternion.identity);
+		GameObject brickInstance = GameObject.Find("MeshBrick(Clone)");
+		String brickwallName = roomName + ":MeshBrick" + brickPos.x + brickPos.y + brickPos.z;
 		brickInstance.name = brickwallName;
 		brickInstance.transform.parent = wallInstance.transform;
+		mesh = brickInstance.GetComponent<MeshFilter> ().mesh;
+
+		float x = brickPos.x;
+		float y = brickPos.y;
+		float z = brickPos.z;
+
+		newVertices.Add (new Vector3 (x, y, z));
+		newVertices.Add (new Vector3 (x + 1, y, z));
+		newVertices.Add (new Vector3 (x, y + 1, z));
+		newVertices.Add (new Vector3 (x + 1, y + 1, z));
+		newVertices.Add (new Vector3 (x, y, z + 1));
+		newVertices.Add (new Vector3 (x, y + 1, z + 1));
+		newVertices.Add (new Vector3 (x + 1, y, z + 1));
+		newVertices.Add (new Vector3 (x + 1, y + 1, z + 1));
+
+		int[] square = new int[4];
+		if (xflag && yflag) {
+		} else if (xflag && zflag) {
+		} else if (yflag && zflag) {
+		}
+		bool createFullBrick = false;
+
+
+
+		int inter = 0;
+		int cardinal = 0;
+		try{
+			if (path [checkX + 1, checkY + 1]) 
+				inter += 1;
+			if(path[checkX-1, checkY + 1])
+				inter += 2;
+			if (path [checkX - 1, checkY - 1])
+				inter += 4;
+			if (path [checkX + 1, checkY - 1])
+				inter += 8;
+
+			if (path [checkX, checkY + 1])
+				cardinal += 1;
+			if (path [checkX + 1, checkY])
+				cardinal += 2;
+			if (path [checkX - 1, checkY])
+				cardinal += 4;
+			if (path [checkX, checkY - 1])
+				cardinal += 8;
+
+			switch (inter) {
+
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+			case 10:
+			case 11:
+			case 12:
+			case 13:
+			case 14:
+				
+			case 15:
+				if(cardinal == 15)
+					break;
+				else
+					//not sure yet
+					break;
+			}
+		} catch(Exception){
+			createFullBrick = true;
+		}
+
+
+		if (createFullBrick) {
+			newTriangles.Add (0);
+			newTriangles.Add (1);
+			newTriangles.Add (2);
+
+			newTriangles.Add (2);
+			newTriangles.Add (3);
+			newTriangles.Add (0);
+
+			newTriangles.Add (0);
+			newTriangles.Add (4);
+			newTriangles.Add (3);
+
+			newTriangles.Add (2);
+			newTriangles.Add (1);
+			newTriangles.Add (5);
+
+			newTriangles.Add (0);
+			newTriangles.Add (4);
+			newTriangles.Add (5);
+
+			newTriangles.Add (5);
+			newTriangles.Add (1);
+			newTriangles.Add (0);
+
+			newTriangles.Add (4);
+			newTriangles.Add (5);
+			newTriangles.Add (2);
+
+			newTriangles.Add (2);
+			newTriangles.Add (3);
+			newTriangles.Add (4);
+		}
+
+
+		mesh.Clear ();
+		mesh.vertices = newVertices.ToArray ();
+		mesh.triangles = newTriangles.ToArray ();
+		mesh.Optimize ();
+		mesh.RecalculateNormals ();
 	}
 
 

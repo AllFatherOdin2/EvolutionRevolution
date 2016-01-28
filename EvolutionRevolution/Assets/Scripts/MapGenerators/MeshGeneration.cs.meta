@@ -1,6 +1,11 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 guid: 71aa410bca86d0e41bc5e9b409e0358b
 timeCreated: 1452484253
+=======
+guid: fc01b3409a3d7df4e89cd044921703d3
+timeCreated: 1453778884
+>>>>>>> wallGeneration
 licenseType: Free
 MonoImporter:
   serializedVersion: 2

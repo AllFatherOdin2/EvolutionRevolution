@@ -101,9 +101,7 @@ MonoBehaviour:
   outsideWalls: 
   room: {fileID: 413084, guid: e22e0c3679c83eb4693c75dd224b67ef, type: 2}
   brick: {fileID: 439500, guid: 973a2a9f9ad00d045b3d58798de0028b, type: 2}
-  newVertices: []
-  newTriangles: 
-  newUV: []
+  meshBrick: {fileID: 0}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

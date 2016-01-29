@@ -9,16 +9,16 @@ public class MeshGeneration : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		createMesh (new Vector3 (0, 0, 0));
+		createMesh (new Vector3 (0, 0, 0), new Vector3(1,1,1));
 		/*
 		addNegXIn ();
 		addNegYIn ();
 		addNegZIn ();
 		addPosYIn ();
 		addPosZIn ();
-		*/
 		addNegXPosY ();
 		addPosZIn ();
+		*/
 		addNegZIn ();
 		displayMesh ();
 	}
@@ -28,27 +28,120 @@ public class MeshGeneration : MonoBehaviour {
 
 	}
 
+
+
 	public List<Vector3> newVertices = new List<Vector3> ();
 	public List<int> newTriangles = new List<int> ();
 	public List<Vector2> newUV = new List<Vector2>();
 
 	private Mesh mesh;
 
-	public void createMesh(Vector3 meshPos){
+
+	public void GenerateCubeWithDefinedWalls(List<WallLocation> walls, bool isInsideWall){
+
+		foreach (WallLocation wall in walls) {
+			if (isInsideWall) {
+				switch (wall) {
+				case WallLocation.xNeg:
+					addNegXIn ();
+					break;
+				case WallLocation.xPos:
+					addPosXIn ();
+					break;
+				case WallLocation.yNeg:
+					addNegYIn ();
+					break;
+				case WallLocation.yPos:
+					addPosYIn ();
+					break;
+				case WallLocation.zNeg:
+					addNegZIn ();
+					break;
+				case WallLocation.zPos:
+					addPosZIn ();
+					break;
+				case WallLocation.xNegYPos:
+					addNegXPosY ();
+					break;
+				case WallLocation.xPosYNeg:
+					addPosXNegY ();
+					break;
+				case WallLocation.xNegYNeg:
+					addNegXNegY ();
+					break;
+				case WallLocation.xPosYPos:
+					addPosXPosY ();
+					break;
+				case WallLocation.yNegZNeg:
+					addNegYNegZ ();
+					break;
+				case WallLocation.yPosZPos:
+					addPosYPosZ ();
+					break;
+				case WallLocation.yPosZNeg:
+					addPosYNegZ ();
+					break;
+				case WallLocation.yNegZPos:
+					addNegYPosZ ();
+					break;
+				case WallLocation.xNegZNeg:
+					addNegXNegZ ();
+					break;
+				case WallLocation.xPosZPos:
+					addPosXPosZ ();
+					break;
+				case WallLocation.xPosZNeg:
+					addPosXNegZ ();
+					break;
+				case WallLocation.xNegZPos:
+					addNegXPosZ ();
+					break;
+				}
+			} else {
+				switch (wall) {
+				case WallLocation.xNeg:
+					addNegXOut ();
+					break;
+				case WallLocation.xPos:
+					addPosXOut ();
+					break;
+				case WallLocation.yNeg:
+					addNegYOut ();
+					break;
+				case WallLocation.yPos:
+					addPosYOut ();
+					break;
+				case WallLocation.zNeg:
+					addNegZOut ();
+					break;
+				case WallLocation.zPos:
+					addPosZOut ();
+					break;
+				}
+		
+			}
+		}
+	}
+
+	public void createMesh(Vector3 meshPos, Vector3 meshSizes){
 		mesh = GetComponent<MeshFilter> ().mesh;
 
 		float x = meshPos.x;
 		float y = meshPos.y;
 		float z = meshPos.z;
 
+		float xAdd = meshSizes.x;
+		float yAdd = meshSizes.y;
+		float zAdd = meshSizes.z;
+
 		newVertices.Add (new Vector3 (x, y, z));
-		newVertices.Add (new Vector3 (x+1, y, z));
-		newVertices.Add (new Vector3 (x, y+1, z));
-		newVertices.Add (new Vector3 (x+1, y + 1, z));
-		newVertices.Add (new Vector3 (x, y, z+1));
-		newVertices.Add (new Vector3 (x, y+1, z+1));
-		newVertices.Add (new Vector3 (x + 1, y, z+1));
-		newVertices.Add (new Vector3 (x+1, y+ 1, z+1));
+		newVertices.Add (new Vector3 (x + xAdd, y, z));
+		newVertices.Add (new Vector3 (x, y + yAdd, z));
+		newVertices.Add (new Vector3 (x + xAdd, y + yAdd, z));
+		newVertices.Add (new Vector3 (x, y, z + zAdd));
+		newVertices.Add (new Vector3 (x, y + xAdd, z + zAdd));
+		newVertices.Add (new Vector3 (x + xAdd, y, z + zAdd));
+		newVertices.Add (new Vector3 (x + xAdd, y + yAdd, z + zAdd));
 
 	}
 
@@ -147,7 +240,7 @@ public class MeshGeneration : MonoBehaviour {
 		newTriangles.Add (2);
 	}
 
-	public void addPosXPosZOut(){
+	public void addNegXNegZ(){
 		newTriangles.Add (3);
 		newTriangles.Add (4);
 		newTriangles.Add (5);

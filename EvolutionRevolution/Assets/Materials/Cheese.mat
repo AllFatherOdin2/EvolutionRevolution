@@ -90,11 +90,11 @@ Material:
       data:
         first:
           name: _Cutoff
-        second: .5
+        second: 0.5
       data:
         first:
           name: _Parallax
-        second: .00499999989
+        second: 0.005
       data:
         first:
           name: _ZWrite
@@ -102,7 +102,7 @@ Material:
       data:
         first:
           name: _Glossiness
-        second: .419999987
+        second: 0.42
       data:
         first:
           name: _BumpScale
@@ -135,4 +135,4 @@ Material:
       data:
         first:
           name: _Color
-        second: {r: .91911763, g: .896186292, b: .0878568068, a: 1}
+        second: {r: 0.9191176, g: 0.8961863, b: 0.08785681, a: 1}

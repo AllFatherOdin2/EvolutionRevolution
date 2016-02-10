@@ -9,23 +9,29 @@ public class MeshGeneration : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		createMesh (new Vector3 (0, 0, 0), new Vector3(1,1,1));
-		/*
-		addNegXIn ();
-		addNegYIn ();
-		addNegZIn ();
-		addPosYIn ();
-		addPosZIn ();
-		addNegXPosY ();
-		addPosZIn ();
-		*/
-		addNegZIn ();
-		displayMesh ();
+		Vector3 pos = new Vector3 (0, 0, 0);
+		Vector3 dim = new Vector3 (1, 10, 10);
+
+		List<WallLocation> walls = new List<WallLocation> ();
+
+		walls.Add (WallLocation.xNeg);
+		walls.Add (WallLocation.xPos);
+
+		initMesh (pos, dim, walls, false);
 	}
 
 	// Update is called once per frame
 	void Update () {
 
+	}
+
+	//InWalls and OutWalls will likely not be filled at the same time, but i have to differencate somehow.
+	void initMesh(Vector3 position, Vector3 dimensions, List<WallLocation> walls, bool isInsideWall){
+		createMesh (position,dimensions);
+
+		GenerateCubeWithDefinedWalls (walls, isInsideWall);
+
+		displayMesh ();
 	}
 
 
@@ -139,7 +145,7 @@ public class MeshGeneration : MonoBehaviour {
 		newVertices.Add (new Vector3 (x, y + yAdd, z));
 		newVertices.Add (new Vector3 (x + xAdd, y + yAdd, z));
 		newVertices.Add (new Vector3 (x, y, z + zAdd));
-		newVertices.Add (new Vector3 (x, y + xAdd, z + zAdd));
+		newVertices.Add (new Vector3 (x, y + yAdd, z + zAdd));
 		newVertices.Add (new Vector3 (x + xAdd, y, z + zAdd));
 		newVertices.Add (new Vector3 (x + xAdd, y + yAdd, z + zAdd));
 

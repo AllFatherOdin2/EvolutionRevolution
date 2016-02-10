@@ -87,8 +87,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71aa410bca86d0e41bc5e9b409e0358b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  newVertices: []
-  newTriangles: 
+  newVertices:
+  - {x: 0, y: 0, z: 0}
+  - {x: 1, y: 0, z: 0}
+  - {x: 0, y: 10, z: 0}
+  - {x: 1, y: 10, z: 0}
+  - {x: 0, y: 0, z: 10}
+  - {x: 0, y: 10, z: 10}
+  - {x: 1, y: 0, z: 10}
+  - {x: 1, y: 10, z: 10}
+  newTriangles: 000000000500000002000000000000000400000005000000060000000100000007000000010000000300000007000000
   newUV: []
 --- !u!1001 &100100000
 Prefab:

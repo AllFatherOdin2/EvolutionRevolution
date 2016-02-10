@@ -9,6 +9,7 @@ public class MeshGeneration : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		/*
 		Vector3 pos = new Vector3 (0, 0, 0);
 		Vector3 dim = new Vector3 (1, 10, 10);
 
@@ -18,6 +19,7 @@ public class MeshGeneration : MonoBehaviour {
 		walls.Add (WallLocation.xPos);
 
 		initMesh (pos, dim, walls, false);
+		*/
 	}
 
 	// Update is called once per frame

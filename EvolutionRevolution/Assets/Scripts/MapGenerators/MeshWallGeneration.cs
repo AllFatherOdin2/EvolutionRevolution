@@ -13,13 +13,33 @@ public class MeshWallGeneration : MonoBehaviour {
 	public float yBase = 0;
 	public float zBase = 0;
 
+	public Transform meshBrick;
+
 	// Use this for initialization
 	void Start () {
 		List<Vector2> exits = new List<Vector2> ();
 		exits.Add (new Vector2 (5, 0));
 		exits.Add (new Vector2 (10, 10));
 
-		createMeshWallWithHoles (width, height, exits);
+		List<List<int>> boxes = createMeshWallWithHoles (width, height, exits);
+
+		for (int a = 0; a < boxes.Count; a++) {
+			List<int> box = boxes [a];
+			int startX = box [0];
+			int startY = box[1];
+			int endX = box[2];
+			int endY = box[3];
+
+			int curWidth = endX - startX;
+			int curHeight = endY - startY;
+
+			List<WallLocation> walls = new List<WallLocation> ();
+			walls.Add (WallLocation.zNeg);
+
+			Debug.Log("startX " + startX + ", startY " + startY + " : width " + curWidth + ", height " + curHeight);
+			createMeshPrefab (new Vector3 (startX, startY, 0), new Vector3 (curWidth, curHeight, 1), walls);
+
+		}
 	
 	}
 	
@@ -28,7 +48,27 @@ public class MeshWallGeneration : MonoBehaviour {
 	
 	}
 
-	void createMeshWallWithHoles(float width, float height, List<Vector2> exits){
+	private void createMeshPrefab(Vector3 position, Vector3 dimensions, List<WallLocation> walls){
+		GameObject meshInstance;
+		MeshGeneration meshScript;
+		try{
+			//brick already exists at this location
+			meshInstance = GameObject.Find(":Mesh" + position.x + position.y + position.z);
+			meshScript = (MeshGeneration)meshInstance.GetComponent (typeof(MeshGeneration));
+
+		} catch (Exception){
+			Instantiate (meshBrick, new Vector3(0,0,0), Quaternion.identity);
+			meshInstance = GameObject.Find ("Mesh(Clone)");
+			String brickwallName = ":Mesh" + position.x + position.y + position.z;
+			meshInstance.name = brickwallName;
+			//brickInstance.transform.parent = wallInstance.transform;
+			meshScript = (MeshGeneration)meshInstance.GetComponent (typeof(MeshGeneration));
+		}
+
+		meshScript.initMesh (position, dimensions, walls, false);
+	}
+
+	public List<List<int>> createMeshWallWithHoles(float width, float height, List<Vector2> exits){
 		this.width = width;
 		this.height = height;
 		Dictionary<Vector2,Vector2> groupings = new Dictionary<Vector2, Vector2>();
@@ -99,14 +139,13 @@ public class MeshWallGeneration : MonoBehaviour {
 			box.Add(endX);
 			box.Add(endY);
 
-			Debug.Log("startX: " + startX + ", startY: " + startY + ", endX: "+ endX + ", endY: " + endY);
 			boxes.Add(box);
 
 		} while(endX < width || endY < height);
 
-		Debug.Log (boxes.Count);
 		boxes = orginizeBoxes (boxes);
-		Debug.Log (boxes.Count);
+
+		return boxes;
 
 	}
 

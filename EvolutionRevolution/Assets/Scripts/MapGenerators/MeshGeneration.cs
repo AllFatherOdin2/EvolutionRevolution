@@ -7,10 +7,16 @@ using AssemblyCSharp;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class MeshGeneration : MonoBehaviour {
 
+	public List<Vector3> newVertices = new List<Vector3> ();
+	public List<int> newTriangles = new List<int> ();
+	public List<Vector2> newUV = new List<Vector2>();
+
+	private Mesh mesh;
+
 	// Use this for initialization
-	void Start () {
-		/*
-		Vector3 pos = new Vector3 (0, 0, 0);
+	void Start () {/*
+		
+		Vector3 pos = new Vector3 (10, 10, 10);
 		Vector3 dim = new Vector3 (1, 10, 10);
 
 		List<WallLocation> walls = new List<WallLocation> ();
@@ -19,8 +25,8 @@ public class MeshGeneration : MonoBehaviour {
 		walls.Add (WallLocation.xPos);
 
 		initMesh (pos, dim, walls, false);
-		*/
-	}
+
+	*/}
 
 	// Update is called once per frame
 	void Update () {
@@ -28,23 +34,16 @@ public class MeshGeneration : MonoBehaviour {
 	}
 
 	//InWalls and OutWalls will likely not be filled at the same time, but i have to differencate somehow.
-	void initMesh(Vector3 position, Vector3 dimensions, List<WallLocation> walls, bool isInsideWall){
-		createMesh (position,dimensions);
+	public void initMesh(Vector3 position, Vector3 dimensions, List<WallLocation> walls, bool isInsideWall){
+		createMesh (new Vector3(0,0,0),dimensions);
 
 		GenerateCubeWithDefinedWalls (walls, isInsideWall);
 
 		displayMesh ();
+
+		this.gameObject.transform.Translate (position);
 	}
-
-
-
-	public List<Vector3> newVertices = new List<Vector3> ();
-	public List<int> newTriangles = new List<int> ();
-	public List<Vector2> newUV = new List<Vector2>();
-
-	private Mesh mesh;
-
-
+		
 	public void GenerateCubeWithDefinedWalls(List<WallLocation> walls, bool isInsideWall){
 
 		foreach (WallLocation wall in walls) {

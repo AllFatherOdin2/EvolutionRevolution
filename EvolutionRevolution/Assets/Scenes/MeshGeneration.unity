@@ -159,6 +159,7 @@ MonoBehaviour:
   xBase: 0
   yBase: 0
   zBase: 0
+  meshBrick: {fileID: 447586, guid: 72579928ab39e3d41953d485184dd196, type: 2}
 --- !u!4 &724054760
 Transform:
   m_ObjectHideFlags: 0

@@ -16,16 +16,14 @@ public class MeshGeneration : MonoBehaviour {
 	// Use this for initialization
 	void Start () {/*
 		
-		Vector3 pos = new Vector3 (10, 10, 10);
-		Vector3 dim = new Vector3 (1, 10, 10);
+		Vector3 pos = new Vector3 (0, 10, 0);
+		Vector3 dim = new Vector3 (1, 100, 0);
 
 		List<WallLocation> walls = new List<WallLocation> ();
 
-		walls.Add (WallLocation.xNeg);
-		walls.Add (WallLocation.xPos);
+		walls.Add (WallLocation.zNeg);
 
 		initMesh (pos, dim, walls, false);
-
 	*/}
 
 	// Update is called once per frame
@@ -35,13 +33,12 @@ public class MeshGeneration : MonoBehaviour {
 
 	//InWalls and OutWalls will likely not be filled at the same time, but i have to differencate somehow.
 	public void initMesh(Vector3 position, Vector3 dimensions, List<WallLocation> walls, bool isInsideWall){
-		createMesh (new Vector3(0,0,0),dimensions);
+		createMesh (position,dimensions);
 
 		GenerateCubeWithDefinedWalls (walls, isInsideWall);
 
 		displayMesh ();
 
-		this.gameObject.transform.Translate (position);
 	}
 		
 	public void GenerateCubeWithDefinedWalls(List<WallLocation> walls, bool isInsideWall){
@@ -149,6 +146,7 @@ public class MeshGeneration : MonoBehaviour {
 		newVertices.Add (new Vector3 (x, y + yAdd, z + zAdd));
 		newVertices.Add (new Vector3 (x + xAdd, y, z + zAdd));
 		newVertices.Add (new Vector3 (x + xAdd, y + yAdd, z + zAdd));
+
 
 	}
 

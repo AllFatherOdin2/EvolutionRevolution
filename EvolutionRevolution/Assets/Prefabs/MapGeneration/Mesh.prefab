@@ -11,7 +11,7 @@ GameObject:
   - 23: {fileID: 2320162}
   - 33: {fileID: 3303134}
   - 64: {fileID: 6492258}
-  - 114: {fileID: 11480650}
+  - 114: {fileID: 11420020}
   m_Layer: 0
   m_Name: Mesh
   m_TagString: Untagged
@@ -76,7 +76,7 @@ MeshCollider:
   serializedVersion: 2
   m_Convex: 0
   m_Mesh: {fileID: 0}
---- !u!114 &11480650
+--- !u!114 &11420020
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -87,16 +87,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71aa410bca86d0e41bc5e9b409e0358b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  newVertices:
-  - {x: 0, y: 0, z: 0}
-  - {x: 1, y: 0, z: 0}
-  - {x: 0, y: 10, z: 0}
-  - {x: 1, y: 10, z: 0}
-  - {x: 0, y: 0, z: 10}
-  - {x: 0, y: 10, z: 10}
-  - {x: 1, y: 0, z: 10}
-  - {x: 1, y: 10, z: 10}
-  newTriangles: 000000000500000002000000000000000400000005000000060000000100000007000000010000000300000007000000
+  newVertices: []
+  newTriangles: 
   newUV: []
 --- !u!1001 &100100000
 Prefab:

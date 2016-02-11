@@ -6,12 +6,12 @@ using AssemblyCSharp;
 
 
 public class MeshWallGeneration : MonoBehaviour {
-	public float width = 50;
-	public float height = 50;
+	float width = 20;
+	float height = 20;
 
-	public float xBase = 0;
-	public float yBase = 0;
-	public float zBase = 0;
+	float xBase = 0;
+	float yBase = 0;
+	float zBase = 0;
 
 	public Transform meshBrick;
 
@@ -36,7 +36,6 @@ public class MeshWallGeneration : MonoBehaviour {
 			List<WallLocation> walls = new List<WallLocation> ();
 			walls.Add (WallLocation.zNeg);
 
-			Debug.Log("startX " + startX + ", startY " + startY + " : width " + curWidth + ", height " + curHeight);
 			createMeshPrefab (new Vector3 (startX, startY, 0), new Vector3 (curWidth, curHeight, 1), walls);
 
 		}

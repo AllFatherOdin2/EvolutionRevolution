@@ -17,6 +17,7 @@ public class MeshWallGeneration : MonoBehaviour {
 	void Start () {
 		List<Vector2> exits = new List<Vector2> ();
 		exits.Add (new Vector2 (5, 0));
+		exits.Add (new Vector2 (10, 10));
 
 		createMeshWallWithHoles (width, height, exits);
 	
@@ -31,6 +32,8 @@ public class MeshWallGeneration : MonoBehaviour {
 		this.width = width;
 		this.height = height;
 		Dictionary<Vector2,Vector2> groupings = new Dictionary<Vector2, Vector2>();
+		List<List<int>> boxes = new List<List<int>> ();
+
 
 		int[,] wall = new int[(int)width, (int)height];
 
@@ -88,19 +91,77 @@ public class MeshWallGeneration : MonoBehaviour {
 				loopCount++;
 				if(loopCount > 10000){
 					throw new Exception("infinite loop in mesh generation");
-					break;
 				}
 			}
+			List<int> box = new List<int> ();
+			box.Add(startX);
+			box.Add(startY);
+			box.Add(endX);
+			box.Add(endY);
 
 			Debug.Log("startX: " + startX + ", startY: " + startY + ", endX: "+ endX + ", endY: " + endY);
-			groupings.Add(new Vector2(startX, startY), new Vector2(endX, endY));
+			boxes.Add(box);
 
 		} while(endX < width || endY < height);
 
-		Vector2 outVec = new Vector2();
-		groupings.TryGetValue(new Vector2(0,0), out outVec);
-		Debug.Log (groupings.Count);
-		Debug.Log (outVec.ToString());
+		Debug.Log (boxes.Count);
+		boxes = orginizeBoxes (boxes);
+		Debug.Log (boxes.Count);
+
+	}
+
+	private List<List<int>> orginizeBoxes(List<List<int>> boxes){
+		
+		for(int a = 0; a < boxes.Count; a ++){
+			List<int> box = boxes[a];
+			int startX = box [0];
+			int startY = box[1];
+			int endX = box[2];
+			int endY = box[3];
+			int boxWidth = endX - startX;
+			int boxHeight = endY - startY;
+
+			Vector2 topCorner = new Vector2 (startX, endY);
+			Vector2 bottomCorner = new Vector2 (endX, startY);
+
+			for (int b = 0; b < boxes.Count; b++) {
+
+				if (b == a)
+					continue;
+				
+				List<int> otherBox = boxes [b];
+				int otherStartX = otherBox [0];
+				int otherStartY = otherBox [1];
+				int otherEndX = otherBox [2];
+				int otherEndY = otherBox [3];
+				int otherBoxWidth = otherEndX - otherStartX;
+				int otherBoxHeight = otherEndX - otherStartY;
+				//Debug.Log (startX + ", " + startY + ": " + otherStartX + ", " + otherStartY);
+
+				if ((topCorner.x == otherStartX && topCorner.y == otherStartY && otherBoxWidth == boxWidth) || 
+					(bottomCorner.x == otherStartX && bottomCorner.y == otherStartY && otherBoxHeight == boxHeight)) {
+					List<int> newBox = new List<int> ();
+					newBox.Add (startX);
+					newBox.Add (startY);
+					newBox.Add (otherEndX);
+					newBox.Add (otherEndY);
+					if (a > b) {
+						boxes.RemoveAt (a);
+						boxes.RemoveAt (b);
+					} else {
+						boxes.RemoveAt (b);
+						boxes.RemoveAt (a);
+					}
+					a--;
+					boxes.Add (newBox);
+					break;
+				}
+
+			}
+
+		}
+	
+		return boxes;
 	}
 
 	private int countHolesInRowAndCol(int x, int y, List<Vector2> exits){

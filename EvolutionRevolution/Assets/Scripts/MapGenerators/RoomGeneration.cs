@@ -462,7 +462,9 @@ public class RoomGeneration : MonoBehaviour {
 
 						if (relCheckx == 1 || relChecky == 1 || relCheckx == relCheckxMax - 2 || relChecky == relCheckyMax - 2) {
 						*/
-						//add squares on edges
+
+						//this is for path generation, so anything point out isnt of concern to me, Except for windows and things of that nature.
+
 						Vector3 brickPos = new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), (z + zBase - depth / 2));
 					
 						if (blocked.Contains(new Vector2(relCheckx,relChecky))) {

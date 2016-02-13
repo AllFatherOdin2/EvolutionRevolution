@@ -422,14 +422,17 @@ public class FullMeshWallGeneration : MonoBehaviour
 						*/
 						//add squares on edges
 						Vector3 brickPos = new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), (z + zBase - depth / 2));
-
+						/*
 						if (blocked.Contains(new Vector2(relCheckx,relChecky))) {
-							createBrick (brickPos, roomInstance);
+							//Will need to figure which way is out, and go from there. Or just assume window will handle it?
+							//TODO: either do this or have the placement of the window do it.
+							//createBrick (brickPos, roomInstance);
 						} else if (relCheckx == 0 || relChecky == 0 || relCheckx == relCheckxMax - 1 || relChecky == relCheckyMax - 1) {
 							//createMeshBrick (brickPos, roomInstance, relCheckx, relChecky, path, xflag, yflag, zflag);
-							createBrick (brickPos, roomInstance);
+							//Another one that isnt strickly required
+							//TODO: determine if i need edges to my walls
+							//createBrick (brickPos, roomInstance);
 						}
-						//cardinal directions, if there is a nearby path
 						else if (path [relCheckx + 1, relChecky] || path [relCheckx - 1, relChecky] || path [relCheckx, relChecky - 1] || path [relCheckx, relChecky + 1]) {
 							createBrick (brickPos, roomInstance);
 						}
@@ -437,6 +440,46 @@ public class FullMeshWallGeneration : MonoBehaviour
 						else if (path [relCheckx + 1, relChecky + 1] || path [relCheckx - 1, relChecky - 1] || path [relCheckx + 1, relChecky - 1] || path [relCheckx - 1, relChecky + 1]) {
 							createBrick (brickPos, roomInstance);
 						}
+						*/
+						//cardinal directions, if there is a nearby path
+
+						int brickCardValue = 0;
+						int brickIntVal = 0;
+
+						if (path [relCheckx - 1, relChecky + 1])
+							brickIntVal += 1;
+						if (path [relCheckx, relChecky + 1])
+							brickCardValue += 1;
+						if (path [relCheckx + 1, relChecky + 1])
+							brickIntVal += 2;
+						if (path [relCheckx - 1, relChecky])
+							brickCardValue += 2;
+						if (path [relCheckx + 1, relChecky])
+							brickCardValue += 4;
+						if (path [relCheckx - 1, relChecky - 1])
+							brickIntVal += 4;
+						if (path [relCheckx, relChecky - 1])
+							brickCardValue += 8;
+						if (path [relCheckx + 1, relChecky - 1])
+							brickIntVal += 8;
+
+						switch (brickCardValue) {
+						case(1):
+							//Wall Up, always
+							break;
+						case(2):
+							//wall left, always
+							break;
+						case(4):
+							//wall right, always
+							break;
+						case(8):
+							//wall down, always
+							break;
+
+						
+						}
+
 
 						count++;
 						if (count >= 1000) {
@@ -457,11 +500,11 @@ public class FullMeshWallGeneration : MonoBehaviour
 
 	private void createMeshPrefab(Vector3 position, Vector3 dimensions, List<WallLocation> walls, String wallName){
 		GameObject meshInstance;
-		MeshGeneration meshScript;
+		MeshGeneration meshWallScript;
 		try{
 			//brick already exists at this location
 			meshInstance = GameObject.Find(wallName + ":Mesh" + position.x + "-" + position.y + "-" + position.z);
-			meshScript = (MeshGeneration)meshInstance.GetComponent (typeof(MeshGeneration));
+			meshWallScript = (MeshGeneration)meshInstance.GetComponent (typeof(MeshGeneration));
 
 		} catch (Exception){
 			Instantiate (meshBrick, new Vector3(0,0,0), Quaternion.identity);
@@ -469,10 +512,10 @@ public class FullMeshWallGeneration : MonoBehaviour
 			String brickwallName = wallName + ":Mesh" + position.x  + "-" + position.y + "-" + position.z;
 			meshInstance.name = brickwallName;
 			//brickInstance.transform.parent = wallInstance.transform;
-			meshScript = (MeshGeneration)meshInstance.GetComponent (typeof(MeshGeneration));
+			meshWallScript = (MeshGeneration)meshInstance.GetComponent (typeof(MeshGeneration));
 		}
 
-		meshScript.initMesh (position, dimensions, walls, false);
+		meshWallScript.initMesh (position, dimensions, walls, false);
 	}
 
 	private bool[,] generatePath(float width, float height, List<Vector2> starts, List<Vector2> ends, List<Vector2> blocked){

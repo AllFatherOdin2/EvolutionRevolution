@@ -9,10 +9,6 @@ public class MeshWallGeneration : MonoBehaviour {
 	float width = 20;
 	float height = 20;
 
-	float xBase = 0;
-	float yBase = 0;
-	float zBase = 0;
-
 	public Transform meshBrick;
 
 	// Use this for initialization
@@ -36,7 +32,7 @@ public class MeshWallGeneration : MonoBehaviour {
 			List<WallLocation> walls = new List<WallLocation> ();
 			walls.Add (WallLocation.zNeg);
 
-			createMeshPrefab (new Vector3 (startX, startY, 0), new Vector3 (curWidth, curHeight, 1), walls);
+			createMeshPrefab (new Vector3 (startX, startY, 0), new Vector3 (curWidth, curHeight, 1), walls, "testWall");
 
 		}
 	
@@ -47,18 +43,18 @@ public class MeshWallGeneration : MonoBehaviour {
 	
 	}
 
-	private void createMeshPrefab(Vector3 position, Vector3 dimensions, List<WallLocation> walls){
+	private void createMeshPrefab(Vector3 position, Vector3 dimensions, List<WallLocation> walls, String wallName){
 		GameObject meshInstance;
 		MeshGeneration meshScript;
 		try{
 			//brick already exists at this location
-			meshInstance = GameObject.Find(":Mesh" + position.x + position.y + position.z);
+			meshInstance = GameObject.Find(wallName + ":Mesh" + position.x + "-" + position.y + "-" + position.z);
 			meshScript = (MeshGeneration)meshInstance.GetComponent (typeof(MeshGeneration));
 
 		} catch (Exception){
 			Instantiate (meshBrick, new Vector3(0,0,0), Quaternion.identity);
 			meshInstance = GameObject.Find ("Mesh(Clone)");
-			String brickwallName = ":Mesh" + position.x + position.y + position.z;
+			String brickwallName = wallName + ":Mesh" + position.x  + "-" + position.y + "-" + position.z;
 			meshInstance.name = brickwallName;
 			//brickInstance.transform.parent = wallInstance.transform;
 			meshScript = (MeshGeneration)meshInstance.GetComponent (typeof(MeshGeneration));

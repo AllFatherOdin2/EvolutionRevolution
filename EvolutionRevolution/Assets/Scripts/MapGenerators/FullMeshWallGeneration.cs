@@ -23,6 +23,7 @@ public class FullMeshWallGeneration : MonoBehaviour
 
 	public Transform meshBrick;
 	public Transform MeshWallGeneration;
+	WaitForSeconds wait = new WaitForSeconds (.01f);
 
 	public List<WallLocation> wallLocations = new List<WallLocation> ();
 	public List<List<Vector2>> blockedTiles = new List<List<Vector2>>();
@@ -36,20 +37,29 @@ public class FullMeshWallGeneration : MonoBehaviour
 		wallLocations.Add (WallLocation.xNeg);
 		wallLocations.Add (WallLocation.yNeg);
 		wallLocations.Add (WallLocation.zNeg);
-
+		/*
 		outsideWalls.Add (WallLocation.xPos);
 		outsideWalls.Add (WallLocation.yPos);
 		outsideWalls.Add (WallLocation.zPos);
 		outsideWalls.Add (WallLocation.xNeg);
 		outsideWalls.Add (WallLocation.yNeg);
 		outsideWalls.Add (WallLocation.zNeg);
+		*/
 
 		roomName = "Room" + xBase + "-" + yBase + "-" + zBase;
 	}
 
 
 	void Start () {
-		
+
+		roomName = "Room" + xBase + yBase + zBase;
+
+
+		StartCoroutine(createRoom (width, height, depth, xBase, yBase, zBase, roomName, wallLocations, outsideWalls));
+
+
+
+
 	}
 
 	void update(){
@@ -68,7 +78,9 @@ public class FullMeshWallGeneration : MonoBehaviour
 		List<Vector2> yEnds = new List<Vector2> ();
 
 
+
 		for(int i = 0; i <wallLocations.Count; i ++) {
+
 			//TODO: gonna need a way to get walls, gonna worry about that later...
 			switch (wallLocations [i]) {
 			case WallLocation.xPos:
@@ -294,125 +306,172 @@ public class FullMeshWallGeneration : MonoBehaviour
 			startsList.Add (wallLocations [i], starts);
 			endsList.Add (wallLocations [i], ends);
 
+			yield return createWall (width, height, depth, xBase, yBase, zBase, startsList, endsList, roomName, wallLocations[i]);
+
 		}
 
-		return createRoom (width, height, depth, xBase, yBase, zBase, startsList, endsList, roomName, wallLocations, outsideWalls);
+		yield return wait;
 
+		//return createRoom (width, height, depth, xBase, yBase, zBase, startsList, endsList, roomName, wallLocations, outsideWalls);
 	}
 
+	private IEnumerator createWall(float width, float height, float depth, float xBase, float yBase, float zBase, 
+		Dictionary<WallLocation, List<Vector2>> startsList, Dictionary<WallLocation, List<Vector2>> endsList, string wallName, WallLocation wallLoc){
 
-	private IEnumerator createRoom(float width, float height, float depth, float xBase, float yBase, float zBase, 
-		Dictionary<WallLocation, List<Vector2>> startsList, Dictionary<WallLocation, List<Vector2>> endsList, string roomName, List<WallLocation> wallLocations, List<WallLocation> outsideWalls){
+		double runtime = 0.0;
 
-		WaitForSeconds wait = new WaitForSeconds (.01f);
+		if (debugRoom) {
+			runtime = Time.realtimeSinceStartup;
+			Debug.Log ("Wall start: " + runtime);
+		}
 
-		foreach(WallLocation wallLoc in wallLocations){
-			int wallWidth = (int)width;
-			int wallHeight = (int)height;
-			int wallDepth = (int)depth;
-			int startWidth = 0;
-			int startHeight = 0;
-			int startDepth = 0;
+		int wallWidth = (int)width;
+		int wallHeight = (int)height;
+		int wallDepth = (int)depth;
+		int startWidth = 0;
+		int startHeight = 0;
+		int startDepth = 0;
 
-			bool xflag = false;
-			bool yflag = false;
-			bool zflag = false;
+		bool xflag = false;
+		bool yflag = false;
+		bool zflag = false;
 
-			bool[,] path;
+		bool[,] path;
+		List<Vector2> blocked = new List<Vector2> ();
+		try{
+			blocked = blockedTiles [(int)wallLoc];
+		} catch	{}
+		List<Vector2> starts;
+		List<Vector2> ends;
 
-			List<Vector2> blocked = blockedTiles [(int)wallLoc];
-			List<Vector2> starts;
-			List<Vector2> ends;
+		//X values hold for +-z and +-y
+		//Y values hold for +-z and +-x
+		WallLocation xPos = WallLocation.xPos;
+		WallLocation xNeg = WallLocation.xNeg;
+		WallLocation yPos = WallLocation.yPos;
+		WallLocation yNeg = WallLocation.yNeg;
+		WallLocation zPos = WallLocation.zPos;
+		WallLocation zNeg = WallLocation.zNeg;
 
-			switch(wallLoc)
-			{
-			case WallLocation.xPos:
-				wallWidth = 1;
-				//z/y depth/height
-				zflag = true;
-				yflag = true;
-				startsList.TryGetValue (wallLoc, out starts);
-				endsList.TryGetValue (wallLoc, out ends);
-				path = generatePath (wallDepth, wallHeight, starts, ends, blocked);
-				break;
-			case WallLocation.yPos:
-				wallHeight = 1;
-				//x/z width/depth
-				xflag = true;
-				zflag = true;
-				startsList.TryGetValue (wallLoc, out starts);
-				endsList.TryGetValue (wallLoc, out ends);
-				path = generatePath (wallWidth, wallDepth, starts, ends, blocked);
-				break;
-			case WallLocation.zPos:
-				wallDepth = 1;
-				//x/y width/height
-				xflag = true;
-				yflag = true;
-				startsList.TryGetValue (wallLoc, out starts);
-				endsList.TryGetValue (wallLoc, out ends);
-				path = generatePath (wallWidth, wallHeight, starts, ends, blocked);
-				break;
-			case WallLocation.xNeg:
-				startWidth = (int)width-1;
-				//z/y depth/height
-				zflag = true;
-				yflag = true;
-				startsList.TryGetValue (wallLoc, out starts);
-				endsList.TryGetValue (wallLoc, out ends);
-				path = generatePath (wallDepth, wallHeight, starts, ends, blocked);
-				break;
-			case WallLocation.yNeg:
-				startHeight = (int)height-1;
-				//x/z width/depth
-				xflag = true;
-				zflag = true;
-				startsList.TryGetValue (wallLoc, out starts);
-				endsList.TryGetValue (wallLoc, out ends);
-				path = generatePath (wallWidth, wallDepth, starts, ends, blocked);
-				break;
-			default:
-				startDepth = (int)depth-1;
-				//x/y width/height
-				xflag = true;
-				yflag = true;
-				startsList.TryGetValue (wallLoc, out starts);
-				endsList.TryGetValue (wallLoc, out ends);
-				path = generatePath (wallWidth, wallHeight, starts, ends, blocked);
-				break;
-			}
+		WallLocation xNegYPos = WallLocation.xNegYPos;
+		WallLocation xPosYPos = WallLocation.xPosYPos;
+		WallLocation xNegYNeg = WallLocation.xNegYNeg;
+		WallLocation xPosYNeg = WallLocation.xPosYNeg;
 
-			float count = 0;
-			for (int x = startWidth; x < wallWidth; x++) {
-				for (int y = startHeight; y < wallHeight; y++) {
-					for( int z = startDepth; z < wallDepth; z++){
-						int relCheckx = x;
-						int relChecky = y;
-						int relCheckxMax = (int)width;
-						int relCheckyMax = (int)height;
-						if (xflag) {
-							if (yflag) {
-								if (path [x, y]) {
-									continue;
-								} 
-							}
-							if (zflag) {
-								if (path [x, z]) {
-									continue;
-								}else {
-									relChecky = z;
-									relCheckyMax = (int)depth;
-								}
-							}
-						} else {
-							if (path [z, y]) {
+		switch(wallLoc)
+		{
+		case WallLocation.xPos:
+			wallWidth = 1;
+			//z/y depth/height
+			zflag = true;
+			yflag = true;
+			startsList.TryGetValue (wallLoc, out starts);
+			endsList.TryGetValue (wallLoc, out ends);
+			path = generatePath (wallDepth, wallHeight, starts, ends, blocked);
+			break;
+		case WallLocation.yPos:
+			wallHeight = 1;
+			//x/z width/depth
+			xflag = true;
+			zflag = true;
+			startsList.TryGetValue (wallLoc, out starts);
+			endsList.TryGetValue (wallLoc, out ends);
+			path = generatePath (wallWidth, wallDepth, starts, ends, blocked);
+			break;
+		case WallLocation.zPos:
+			wallDepth = 1;
+			//x/y width/height
+			xflag = true;
+			yflag = true;
+			startsList.TryGetValue (wallLoc, out starts);
+			endsList.TryGetValue (wallLoc, out ends);
+			path = generatePath (wallWidth, wallHeight, starts, ends, blocked);
+			break;
+		case WallLocation.xNeg:
+			startWidth = (int)width-1;
+			//z/y depth/height
+			zflag = true;
+			yflag = true;
+			startsList.TryGetValue (wallLoc, out starts);
+			endsList.TryGetValue (wallLoc, out ends);
+			path = generatePath (wallDepth, wallHeight, starts, ends, blocked);
+			break;
+		case WallLocation.yNeg:
+			startHeight = (int)height-1;
+			//x/z width/depth
+			xflag = true;
+			zflag = true;
+			startsList.TryGetValue (wallLoc, out starts);
+			endsList.TryGetValue (wallLoc, out ends);
+			path = generatePath (wallWidth, wallDepth, starts, ends, blocked);
+			break;
+		default:
+			startDepth = (int)depth-1;
+			//x/y width/height
+			xflag = true;
+			yflag = true;
+			startsList.TryGetValue (wallLoc, out starts);
+			endsList.TryGetValue (wallLoc, out ends);
+			path = generatePath (wallWidth, wallHeight, starts, ends, blocked);
+			break;
+		}
+
+		//Don't question it, just go with it.
+		if (!xflag) {
+			xPos = WallLocation.zPos;
+			xNeg = WallLocation.zNeg;
+
+			zPos = WallLocation.xPos;
+			zNeg = WallLocation.xNeg;
+
+			xNegYPos = WallLocation.yPosZNeg;
+			xPosYPos = WallLocation.yPosZPos;
+			xNegYNeg = WallLocation.yNegZNeg;
+			xPosYNeg = WallLocation.yNegZPos;
+		} else if (!yflag) {
+			yPos = WallLocation.zPos;
+			yNeg = WallLocation.zNeg;
+
+			zPos = WallLocation.yPos;
+			zNeg = WallLocation.yNeg;
+
+			xNegYPos = WallLocation.xNegZPos;
+			xPosYPos = WallLocation.xPosZPos;
+			xNegYNeg = WallLocation.xNegZNeg;
+			xPosYNeg = WallLocation.xPosZNeg;
+		}
+
+		float count = 0;
+		for (int x = startWidth; x < wallWidth; x++) {
+			for (int y = startHeight; y < wallHeight; y++) {
+				for( int z = startDepth; z < wallDepth; z++){
+					int relCheckx = x;
+					int relChecky = y;
+					int relCheckxMax = (int)width;
+					int relCheckyMax = (int)height;
+					if (xflag) {
+						if (yflag) {
+							if (path [x, y]) {
+								continue;
+							} 
+						}
+						if (zflag) {
+							if (path [x, z]) {
 								continue;
 							}else {
-								relCheckx = z;
-								relCheckxMax = (int)depth;
+								relChecky = z;
+								relCheckyMax = (int)depth;
 							}
 						}
-						/*
+					} else {
+						if (path [z, y]) {
+							continue;
+						}else {
+							relCheckx = z;
+							relCheckxMax = (int)depth;
+						}
+					}
+					/*
 						 * possibly requierd, but with proper starts and ends, maybe not
 						if (relCheckx == 0 || relChecky == 0 || relCheckx == relCheckxMax - 1 || relChecky == relCheckyMax - 1) {
 							continue;
@@ -420,9 +479,8 @@ public class FullMeshWallGeneration : MonoBehaviour
 
 						if (relCheckx == 1 || relChecky == 1 || relCheckx == relCheckxMax - 2 || relChecky == relCheckyMax - 2) {
 						*/
-						//add squares on edges
-						Vector3 brickPos = new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), (z + zBase - depth / 2));
-						/*
+					//add squares on edges
+					/*
 						if (blocked.Contains(new Vector2(relCheckx,relChecky))) {
 							//Will need to figure which way is out, and go from there. Or just assume window will handle it?
 							//TODO: either do this or have the placement of the window do it.
@@ -441,64 +499,132 @@ public class FullMeshWallGeneration : MonoBehaviour
 							createBrick (brickPos, roomInstance);
 						}
 						*/
-						//cardinal directions, if there is a nearby path
 
-						int brickCardValue = 0;
-						int brickIntVal = 0;
 
-						if (path [relCheckx - 1, relChecky + 1])
-							brickIntVal += 1;
+					Vector3 brickPos = new Vector3 ((x + xBase - width / 2), (y + yBase - height / 2), (z + zBase - depth / 2));
+					int brickCardValue = 0;
+					bool isInsideWall = true;
+					try{
 						if (path [relCheckx, relChecky + 1])
 							brickCardValue += 1;
-						if (path [relCheckx + 1, relChecky + 1])
-							brickIntVal += 2;
+					}catch{}
+
+					try{
 						if (path [relCheckx - 1, relChecky])
 							brickCardValue += 2;
+					}catch{}
+
+					try{
 						if (path [relCheckx + 1, relChecky])
 							brickCardValue += 4;
-						if (path [relCheckx - 1, relChecky - 1])
-							brickIntVal += 4;
+					}catch{}
+
+					try{
 						if (path [relCheckx, relChecky - 1])
 							brickCardValue += 8;
-						if (path [relCheckx + 1, relChecky - 1])
-							brickIntVal += 8;
+					}catch{}
+					
+					//Comments assume wall is x/y z facing out assume wall out unless otherwise stated
+					List<WallLocation> wallArray = new List<WallLocation> ();
 
-						switch (brickCardValue) {
-						case(1):
-							//Wall Up, always
-							break;
-						case(2):
-							//wall left, always
-							break;
-						case(4):
-							//wall right, always
-							break;
-						case(8):
-							//wall down, always
-							break;
+					switch (brickCardValue) {
+					case(1):
+						//Wall +y out
+						wallArray.Add (yPos);
+						isInsideWall = false;
+						break;
+					case(2):
+						//Wall -x out
+						wallArray.Add (xNeg);
+						isInsideWall = false;
+						break;
+					case(3):
+						//-x+y
+						wallArray.Add(xNegYPos);
+						//wallArray.Add(zNeg);
+						//wallArray.Add(zPos);
+						break;
+					case(4):
+						//Wall +x out
+						wallArray.Add (xPos);
+						isInsideWall = false;
+						break;
+					case(5):
+						//+x+y
+						wallArray.Add(xPosYPos);
+						//wallArray.Add(zNeg);
+						//wallArray.Add(zPos);
+						break;
+					case(6):
+						//Wall +x, Wall -x out
+						wallArray.Add (xNeg);
+						wallArray.Add (xPos);
+						isInsideWall = false;
+						break;
+					case(7):
+						//Wall -y in*
+						wallArray.Add (yNeg);
+						break;
+					case(8):
+						//wall -y out
+						wallArray.Add (yNeg);
+						isInsideWall = false;
+						break;
+					case(9):
+						//Wall+y, Wall -y out
+						wallArray.Add (yNeg);
+						wallArray.Add (yPos);
+						break;
+					case(10):
+						//-x-y
+						wallArray.Add(xNegYNeg);
+						//wallArray.Add(zNeg);
+						//wallArray.Add(zPos);
+						break;
+					case(11):
+						//wall +x in*
+						wallArray.Add (xPos);
+						break;
+					case(12):
+						//+x-y
+						wallArray.Add(xPosYNeg);
+						//wallArray.Add(zNeg);
+						//wallArray.Add(zPos);
+						break;
+					case(13):
+						//wall -x, in*
+						wallArray.Add (xNeg);
+						break;
+					case(14):
+						//Wall +y, in*
+						wallArray.Add (yPos);
+						break;
 
-						
-						}
+					}
+					if (wallArray.Count > 0) {
+						createMeshPrefab (brickPos, new Vector3 (1, 1, 1), wallArray, wallName, isInsideWall);
+					}
 
 
-						count++;
-						if (count >= 1000) {
-							count = 0;
-							yield return wait;
-						}
+					count++;
+					if (count >= 1000) {
+						count = 0;
+						yield return wait;
 					}
 				}
 			}
+		}
 
-			//Pushing off for now.
-			//createBasicWallMesh (new Vector3 ((xBase - width / 2), (yBase - height / 2), (zBase - depth / 2)), width, height, depth);
+		if (debugRoom) {
+			runtime = Time.realtimeSinceStartup - runtime;
+			Debug.Log ("Wall end: " + Time.realtimeSinceStartup);
+			Debug.Log ("run Time: " + runtime);
 		}
 
 
-		//return new Room (width, height, depth, xBase, yBase, zBase, roomName, wallLocs);
 	}
 
-	private void createMeshPrefab(Vector3 position, Vector3 dimensions, List<WallLocation> walls, String wallName){
+	private void createMeshPrefab(Vector3 position, Vector3 dimensions, List<WallLocation> walls, String wallName, bool isInsideWall){
 		GameObject meshInstance;
 		MeshGeneration meshWallScript;
 		try{
@@ -515,7 +641,7 @@ public class FullMeshWallGeneration : MonoBehaviour
 			meshWallScript = (MeshGeneration)meshInstance.GetComponent (typeof(MeshGeneration));
 		}
 
-		meshWallScript.initMesh (position, dimensions, walls, false);
+		meshWallScript.initMesh (position, dimensions, walls, isInsideWall);
 	}
 
 	private bool[,] generatePath(float width, float height, List<Vector2> starts, List<Vector2> ends, List<Vector2> blocked){

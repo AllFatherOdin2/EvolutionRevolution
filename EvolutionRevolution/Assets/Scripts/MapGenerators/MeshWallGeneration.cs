@@ -13,6 +13,7 @@ public class MeshWallGeneration : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		/*
 		List<Vector2> exits = new List<Vector2> ();
 		exits.Add (new Vector2 (5, 0));
 		exits.Add (new Vector2 (10, 10));
@@ -35,14 +36,14 @@ public class MeshWallGeneration : MonoBehaviour {
 			createMeshPrefab (new Vector3 (startX, startY, 0), new Vector3 (curWidth, curHeight, 1), walls, "testWall");
 
 		}
-	
+	*/
 	}
 	
 	// Update is called once per frame
 	void Update () {
 	
 	}
-
+	/*
 	private void createMeshPrefab(Vector3 position, Vector3 dimensions, List<WallLocation> walls, String wallName){
 		GameObject meshInstance;
 		MeshGeneration meshScript;
@@ -62,7 +63,7 @@ public class MeshWallGeneration : MonoBehaviour {
 
 		meshScript.initMesh (position, dimensions, walls, false);
 	}
-
+*/
 	public List<List<int>> createMeshWallWithHoles(float width, float height, List<Vector2> exits){
 		this.width = width;
 		this.height = height;

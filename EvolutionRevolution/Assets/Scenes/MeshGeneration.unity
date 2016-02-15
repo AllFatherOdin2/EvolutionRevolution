@@ -210,6 +210,14 @@ Prefab:
       propertyPath: m_RootOrder
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 11471696, guid: 186389d88791d2a4cb4e8cb2b911c43c, type: 2}
+      propertyPath: debugRoom
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11471696, guid: 186389d88791d2a4cb4e8cb2b911c43c, type: 2}
+      propertyPath: debugWall
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 186389d88791d2a4cb4e8cb2b911c43c, type: 2}
   m_IsPrefabParent: 0
